@@ -116,7 +116,8 @@
 .month-picker-month {
     position: relative;
     border: 1px solid transparent;
-    background: #f6f6f6;
+    background: var(--ms-bg);
+    color: var(--ms-text);
     border-radius: 8px;
     padding: 8px 0 10px;
     font-size: 0.9rem;
@@ -235,8 +236,8 @@
 .event-bar.continues-after { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: 0; }
 /* 只有開始日的活動：淺色底、左側色條，和有期間的長條區分 */
 .event-bar.single-day {
-    background-color: #fff;
-    color: #333;
+    background-color: var(--ms-surface);
+    color: var(--ms-text);
     border-left: 4px solid var(--tag-none);
     box-shadow: inset 0 0 0 1px var(--grid-line);
 }
@@ -259,7 +260,7 @@
     align-items: center;
     gap: 10px;
     text-align: left;
-    background: #fff !important;
+    background: var(--ms-surface) !important;
     color: var(--primary-color) !important;
     border: 1px solid var(--grid-line);
     border-left: 6px solid var(--tag-none);
