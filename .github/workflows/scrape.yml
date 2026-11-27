@@ -56,15 +56,35 @@ jobs:
         working-directory: scraper
         run: npm ci --no-audit --no-fund
 
+      # 爬蟲和寫回名冊動手前，先把三份共用資料存一份 (backup/firestore/，還原用 scraper/restore.js)
+      - name: 備份 Firestore 共用資料
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          node scraper/snapshot.js
+          git add backup/firestore
+          if git diff --staged --quiet; then
+            echo "共用資料沒有變動"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "備份：Firestore 共用資料 ($(TZ=Asia/Taipei date +%F))"
+          git push
+
       - name: 抓取並新增活動
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node scraper/scrape.js --pool-items "$RUNNER_TEMP/pool-items.json"
 
       # 有新增活動時 commit 紀錄檔 (也讓 repo 保持有動靜，排程才不會因 60 天沒活動被停用)
+      # pool-seen.json (讀過卡池的公告) 等卡池 PR 成功才 commit，失敗的話下次會重讀
       - name: Commit 紀錄
         run: |
-          git add scraper/log.md scraper/seen.json scraper/pool-seen.json
+          # 先收起來，免得卡池 PR 切分支、合併時被擋 (工作區有未 commit 的修改)
+          cp scraper/pool-seen.json "$RUNNER_TEMP/pool-seen.json"
+          git checkout -- scraper/pool-seen.json
+          git add scraper/log.md scraper/seen.json
           if git diff --staged --quiet; then
             echo "沒有變動"
             exit 0
@@ -95,10 +115,26 @@ jobs:
           git push
 
       - name: 卡池 PR
+        id: poolpr
         if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash scraper/pool-pr.sh "$RUNNER_TEMP/pool-items.json" "卡池更新：官網新公告"
+
+      - name: Commit 讀過卡池的公告
+        if: ${{ !cancelled() && steps.poolpr.outcome == 'success' }}
+        run: |
+          git checkout main
+          cp "$RUNNER_TEMP/pool-seen.json" scraper/pool-seen.json
+          git add scraper/pool-seen.json
+          if git diff --staged --quiet; then
+            echo "沒有變動"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "爬蟲：更新讀過卡池的公告 ($(TZ=Asia/Taipei date +%F))"
+          git push
 
   backfill:
     if: ${{ inputs.backfill }}

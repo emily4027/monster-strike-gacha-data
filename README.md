@@ -96,6 +96,19 @@ Actions → 抓取轉蛋公告 → Run workflow，勾選「歷史卡池回補」
 ### 失敗時
 官網連不上、或公告列表一篇都讀不到（版面改了）時，workflow 會失敗，GitHub 會寄信通知。
 
+卡池 PR 開著的時候，main 又改到同一段 `pools.json`／`characters.json`（例如編輯模式寫回），爬蟲沒辦法把新卡池接進 PR，會失敗並寫明「卡池 PR 和 main 有衝突」。到 PR 解決衝突後 Merge，或直接關掉 PR；讀過卡池的公告（`scraper/pool-seen.json`）要等卡池 PR 成功才會記下，所以下次執行會重讀，不會漏掉。
+
+### 共用資料的每日備份
+每天爬蟲動手前，先把 Firestore 的 `shared/events`、`shared/characters`、`shared/roster` 存成 `backup/firestore/` 裡的三個 JSON 檔並 commit（有變動才 commit，git 歷史就是每天的版本）。
+
+改錯了要還原（整份文件蓋回去，備份之後才做的修改會一起被蓋掉）：
+```bash
+# 先比較雲端現在和備份 (不寫入)；--ref 用某天的備份，可以先 git log -- backup/firestore/events.json 查
+FIREBASE_SERVICE_ACCOUNT='<金鑰 JSON>' node scraper/restore.js events --ref <commit>
+# 確定後加 --yes。寫入前雲端現在的內容會先存到 backup/firestore/events.before-restore-<時間>.json
+FIREBASE_SERVICE_ACCOUNT='<金鑰 JSON>' node scraper/restore.js events --ref <commit> --yes
+```
+
 ---
 
 ## 🔧 爬蟲設定（只需要做一次）

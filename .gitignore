@@ -3,3 +3,4 @@ node_modules/
 scraper/pool-items.json
 scraper/pool-report.md
 .cache/
+backup/firestore/*.before-restore-*.json

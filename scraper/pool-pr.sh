@@ -24,13 +24,21 @@ fi
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+# actions/checkout 預設只抓最新一個 commit (淺複本)，合併時會找不到共同祖先 (refusing to merge unrelated histories)
+if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+  git fetch --quiet --unshallow origin
+fi
 git fetch origin main
 
 PR="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
 if [ -n "$PR" ] && [ "$MODE" = "append" ]; then
   git fetch origin "$BRANCH"
   git checkout -B "$BRANCH" "origin/$BRANCH"
-  git merge --no-edit origin/main
+  if ! git merge --no-edit origin/main; then
+    git merge --abort || true
+    echo "::error::卡池 PR #$PR 和 main 有衝突 (多半是 PR 開著時 main 改了同一段 pools.json／characters.json)。請到 PR 解決衝突後 Merge，或直接關掉 PR，下次執行會從 main 重新開。這次的卡池變動沒有寫進 PR。"
+    exit 1
+  fi
 else
   git checkout -B "$BRANCH" origin/main
 fi
