@@ -11,17 +11,25 @@
     'use strict';
 
     // 資料位置 (抽卡統計改了路徑或欄位時，這裡也要一起改)
-    const EVENTS_DOC = ['shared', 'events'];                // 活動清單 (所有人可讀)
+    // Firestore 路徑用工具箱共用檔的 PATHS (shared.js)；共用檔沒載入時退回自己拼 (結果相同)
+    const MS = root.MSShared;
+    const PATHS = MS && MS.PATHS ? MS.PATHS : {
+        sharedEvents: ['shared', 'events'],
+        sharedRoster: ['shared', 'roster'],
+        sharedCharacters: ['shared', 'characters'],
+        admin: (uid) => ['admins', uid],
+        gachaRecords: (appId, uid) => ['artifacts', appId || 'default-app-id', 'users', uid, 'data', 'gacha_records']
+    };
+    if (!MS) console.warn('[SHARED] 共用檔 shared.js 沒載入，使用內建的路徑與連結');
+    const EVENTS_DOC = PATHS.sharedEvents;                  // 活動清單 (所有人可讀)
     const EVENTS_FALLBACK_URL = '/monster-strike-gacha/events.json';   // 同網域，讀不到雲端時的備援
-    const ROSTER_EDITS_DOC = ['shared', 'roster'];          // 管理員對角色名冊的修改 (所有人可讀、管理員可寫；爬蟲每天寫回 characters.json)
-    const NAME_FIXES_DOC = ['shared', 'characters'];        // 名稱修正 (所有人可讀、管理員可寫)
-    const ADMINS_COLLECTION = 'admins';                     // admins/{uid} 存在即為管理員 (和抽卡統計共用)
+    const ROSTER_EDITS_DOC = PATHS.sharedRoster;            // 管理員對角色名冊的修改 (所有人可讀、管理員可寫；爬蟲每天寫回 characters.json)
+    const NAME_FIXES_DOC = PATHS.sharedCharacters;          // 名稱修正 (所有人可讀、管理員可寫)
     const GACHA_LOCAL_KEY = 'gachaRecords';                 // 抽卡統計的本機紀錄 (同網域共用)
     const POOLS_URL = 'pools.json';
     const ROSTER_URL = 'characters.json';                   // 角色名冊 (名稱、別名、各形態 → 屬性，名稱上色用)
     const ELEMENT_CLASS = { '火': 'el-fire', '水': 'el-water', '木': 'el-wood', '光': 'el-light', '闇': 'el-dark' };
 
-    const TOOLBOX_TOOLS_URL = 'https://emily4027.github.io/monster-strike-toolbox/tools.js';
     const THIS_TOOL = {
         id: 'gacha-data',
         name: '轉蛋資料庫',
@@ -44,12 +52,15 @@
         set(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* 無痕模式等情況可忽略 */ } }
     };
 
+    // 等 firebase.js (module) 掛好全域：最多 5 秒、每 100ms 一次；共用檔沒載入時退回簡單輪詢
     async function waitForFirebase() {
+        const ready = () => !!(root.firebaseFns && root.db && root.firebaseAuth);
+        if (MS && MS.waitFor) return MS.waitFor(ready, { interval: 100, timeout: FIREBASE_WAIT_RETRIES * 100 });
         for (let i = 0; i < FIREBASE_WAIT_RETRIES; i++) {
-            if (root.firebaseFns && root.db && root.firebaseAuth) return true;
+            if (ready()) return true;
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
-        return false;
+        return ready();
     }
 
     const fns = () => root.firebaseFns;
@@ -99,7 +110,7 @@
 
     // 只讀取，不寫入 (抽卡統計和果實分配有版本檢查規則，這裡不碰)
     async function readCloudRecords(uid) {
-        const snap = await fns().getDoc(docRef('artifacts', root.envAppId || 'default-app-id', 'users', uid, 'data', 'gacha_records'));
+        const snap = await fns().getDoc(docRef(...PATHS.gachaRecords(root.envAppId, uid)));
         const list = snap.exists() ? snap.data().records : [];
         return Array.isArray(list) ? list : [];
     }
@@ -233,7 +244,7 @@
     async function checkAdmin(user) {
         if (!user) return false;
         try {
-            const snap = await fns().getDoc(docRef(ADMINS_COLLECTION, user.uid));
+            const snap = await fns().getDoc(docRef(...PATHS.admin(user.uid)));
             return snap.exists();
         } catch (e) {
             return false;
@@ -293,35 +304,12 @@
     }
 
     // =====================================================
-    // 懸浮工具箱：讀取工具箱的 tools.js (window.MS_TOOLS) 後重建連結；
-    // 讀不到時維持 HTML 裡的連結。清單裡還沒有這個工具時補在最後。
+    // 懸浮工具箱：交給工具箱共用檔重建連結 (清單裡還沒有這個工具時補在最後)；
+    // 共用檔沒載入或讀不到 tools.js 時維持 HTML 裡的連結
     // =====================================================
-    function renderToolboxMenu() {
-        const list = document.querySelector('.toolbox-items-list');
-        const tools = Array.isArray(root.MS_TOOLS) ? root.MS_TOOLS : [];
-        const valid = tools.filter((t) => t && typeof t.name === 'string' && t.name
-            && typeof t.url === 'string' && /^https:\/\//.test(t.url));
-        if (!list || valid.length === 0) return;
-        if (!valid.some((t) => t.id === THIS_TOOL.id)) valid.push(THIS_TOOL);
-
-        const home = list.querySelector('.toolbox-home');
-        const links = valid.map((t) => {
-            const active = t.id === THIS_TOOL.id;
-            const a = el('a', 'toolbox-item' + (active ? ' active' : ''),
-                (typeof t.emoji === 'string' ? t.emoji + ' ' : '') + t.name + (active ? ' (現行)' : ''));
-            a.href = t.url;
-            return a;
-        });
-        list.replaceChildren(...(home ? [home] : []), ...links);
-    }
-
     function loadToolboxMenu() {
-        const script = document.createElement('script');
-        script.src = TOOLBOX_TOOLS_URL;
-        script.async = true;
-        script.onload = renderToolboxMenu;
-        script.onerror = () => console.warn('[TOOLBOX] 讀不到工具箱的 tools.js，使用內建連結');
-        document.head.appendChild(script);
+        if (MS && MS.loadToolboxMenu) MS.loadToolboxMenu(THIS_TOOL.id, { fallbackTool: THIS_TOOL });
+        else console.warn('[TOOLBOX] 共用檔 shared.js 沒載入，使用內建連結');
     }
 
     const poolsForEventCount = (pools, eventName) => root.CharacterPools.poolsForEvent(pools, eventName).length;
