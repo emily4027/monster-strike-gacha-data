@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const X = require('../scraper/pool-parse.js');
+const { poolKey } = require('../pools.js');
 
 const FESTIVAL = `
 <h2>全新限定角色登場！</h2>
@@ -541,4 +542,44 @@ test('「介紹在轉蛋中登場的期間限定角色」段落的特別造型�
     assert.equal(data.elementOf['瞄準球門之契約的大天使 梅塔特隆'], '闇');
     // 沒有限定角色表的公告不讀這個段落
     assert.deepEqual(X.extractPoolData(html.slice(html.indexOf('<p>'))).limited.flatMap((l) => l.names).includes('飛舞於球場之音樂的大天使 聖德芬'), false);
+});
+
+// ---- 新系列轉蛋：一隻一隻看是不是限定 (名稱有 α 才算，其他當常駐) ----
+const NEW_SERIES = (heads, extra = '') => '<p>三位新登場的角色「鄭和」、「伊能忠敬」跟「甲α」</p><h4>新系列轉蛋活動</h4><h4>新登場角色介紹！</h4>' + heads + extra;
+
+test('新系列轉蛋：名稱都沒有 α 的整期當常駐，不建卡池也不編號，只標出來', () => {
+    const html = NEW_SERIES('<h5>★6 心靈相通的宇宙冒險家 鄭和（獸神化後）</h5><h5>★6 踏遍未知的宇宙測量家 伊能忠敬（獸神化後）</h5>');
+    const r = X.planPoolChanges(POOLS(), [item('2026-11月 銀河冒險 II', '2026-11-02', 'honke', html)]);
+    assert.deepEqual(r.changes, []);
+    assert.equal(r.flags.length, 1);
+    assert.match(r.flags[0].message, /鄭和、伊能忠敬）都當成常駐角色（名稱沒有 α），沒有建立限定卡池/);
+});
+
+test('新系列轉蛋：有 α 的收進卡池，沒有的標出來；推測名稱的提醒只留收進去的', () => {
+    const html = '<p>「甲α」和「鄭和」登場</p><h4>新登場角色介紹！</h4><h5>★6 稱號 甲α（獸神化後）</h5><h5>★6 心靈相通的宇宙冒險家 鄭和（獸神化後）</h5><h5>★6 稱號 乙α（獸神化後）</h5>';
+    const r = X.planPoolChanges(POOLS(), [item('2026-12月 某新系列', '2026-12-02', 'honke', html)]);
+    assert.deepEqual(r.changes.map((c) => c.chars), [['甲α', '乙α']]);
+    assert.ok(r.flags.some((f) => f.message.startsWith('「鄭和」當成常駐角色（名稱沒有 α）')));
+    assert.ok(r.flags.some((f) => f.message.includes('「乙α」是從小標題')));
+    assert.equal(r.flags.some((f) => f.message.includes('「鄭和」是從小標題')), false);
+    // α 在中間 (「奈特梅雅α：聖誕風格」) 或前面有空白 (「Two for all α」) 也算
+    const lists = X.planPoolChanges(POOLS(), [item('2026-12月 某新系列', '2026-12-02', 'honke', SEASONAL)]);
+    assert.deepEqual(lists.changes.map((c) => c.chars), [['達太喵α', '莫斯科蘿兒α', 'Two for all α', '奈特梅雅α']]);
+});
+
+test('新系列轉蛋：期間限定角色段落裡的 (沒有 α) 和名冊標成期間限定的收進卡池，名冊標常駐的不收', () => {
+    const period = '<h4>介紹在轉蛋中登場的期間限定角色</h4><p>水屬性 ★6 飛舞於球場之音樂的大天使 聖德芬（獸神化）</p>';
+    const html = NEW_SERIES('<h5>★6 稱號 甲α（獸神化後）</h5><h5>★6 心靈相通的宇宙冒險家 鄭和（獸神化後）</h5><h5>★6 踏遍未知的宇宙測量家 伊能忠敬（獸神化後）</h5>', period);
+    const data = X.extractPoolData(html);
+    assert.deepEqual(data.limited[0].specials, ['飛舞於球場之音樂的大天使 聖德芬']);
+    assert.equal(data.elementOf['飛舞於球場之音樂的大天使 聖德芬'], '水');
+    const r = X.planPoolChanges(POOLS(), [{ event: { event: '2026-12月 某新系列', date: '2026-12-02', tag: 'honke', source: 's' }, data }],
+        { kinds: { [poolKey('鄭和')]: 'period', [poolKey('甲α')]: 'regular' } });
+    assert.deepEqual(r.changes.map((c) => c.chars), [['鄭和', '飛舞於球場之音樂的大天使 聖德芬']]);
+    assert.ok(r.flags.some((f) => f.message.startsWith('「甲α（名冊標成常駐）」「伊能忠敬」當成常駐角色')));
+});
+
+test('新系列轉蛋：有限定角色表的祭典 (世足激獸神) 不受影響，沒有 α 的特別造型照收', () => {
+    const r = X.planPoolChanges(POOLS(), [item('2026-11月 綠色幻想', '2026-11-20', 'honke', FESTIVAL)]);
+    assert.ok(r.flags.every((f) => !/當成常駐/.test(f.message)));
 });

@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const { planPoolChanges, formatPoolsJson, describePoolChanges, mergeElements } = require('./pool-parse.js');
 const R = require('../roster.js');
+const { poolKey } = require('../pools.js');
 
 const POOLS_FILE = path.join(__dirname, '..', 'pools.json');
 const ROSTER_FILE = path.join(__dirname, '..', 'characters.json');
@@ -28,7 +29,10 @@ function applyPools({ pools, roster, overrides, items, flags }) {
     const all = {
         ...(overrides || {}),
         global: { ...fromRoster.global, ...((overrides && overrides.global) || {}) },
-        pools: { ...fromRoster.pools, ...((overrides && overrides.pools) || {}) }
+        pools: { ...fromRoster.pools, ...((overrides && overrides.pools) || {}) },
+        // 名冊的類別 { 比對用名稱: kind }：新系列轉蛋判斷哪些角色是限定 (角色頁標過的以名冊為準)
+        kinds: Object.fromEntries((roster.characters || []).filter((c) => c.kind)
+            .flatMap((c) => R.namesOf(c).map((n) => [poolKey(n), c.kind])))
     };
     const orphanFlags = [];
     const named = R.poolsToNames(pools, roster, (o) => orphanFlags.push({ event: o.pool, source: '',

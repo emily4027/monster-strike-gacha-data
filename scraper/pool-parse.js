@@ -6,6 +6,7 @@
 //     是那期才有的特別造型，表格沒列，也算這期卡池
 //   - 季節限定等新系列轉蛋 (聖誕節、暑假、新娘、學院…)：公告沒有限定角色表，角色寫在「新登場角色介紹」
 //     或「「X」轉蛋活動現身」段落下面的小標題 (「★6 稱號 名稱α（獸神化後）」)，取獸神化前的名稱
+//     只收限定角色 (名稱有 α、期間限定角色段落裡的、名冊標成期間限定的)，其他當成常駐不收 (headingListLimited)
 //   - 合作活動：標題有「轉蛋「…」」的段落裡的角色表，只收稀有度「★6（獸神化前）」的角色
 //   - 卡池依每期公告各自一個版本：限定卡池的版本記下它是哪幾個月 (months)，活動只用自己那個月的版本。
 //     名單和某一期相同時把月份加進那個版本；同一個月已經有不同名單的版本時不寫，只標出來
@@ -240,7 +241,7 @@ const parseLimitedLists = (html) => parseLimitedTables(html).limited;
 // 季節限定等新系列轉蛋的角色：寫在段落下面的小標題，不是表格
 //   段落：「新登場角色介紹！」(卡池名稱看活動名稱)，或「「復刻！怪物彈珠聖誕節 2021」轉蛋活動現身！」(一篇公告好幾個轉蛋)
 //   小標題：「★6 演技出色的婚禮之王 達太喵α（獸神化後）」→ 獸神化前的名稱「達太喵α」
-//   → [{ header, poolName, names, guessed: [推測的名稱], fromHeadings: true }]
+//   → [{ header, poolName, names, fulls: [各名稱的獸神化後全名], guessed: [推測的名稱], fromHeadings: true }]
 const NEW_CHARS_HEADING_RE = /新登場角色介紹/;
 const EVOLVED_HEADING_RE = /^★6\s*(.+?)\s*[（(]\s*(?:獸神化後|獸神化・改|真獸神化)\s*[）)]$/;
 function parseHeadingLists(html) {
@@ -266,6 +267,7 @@ function parseHeadingLists(html) {
         if (!m) continue;
         const base = baseName(m[1], quoted);
         current.names.push(base.name);
+        current.fulls = [...(current.fulls || []), m[1]];
         current.evolved = [...(current.evolved || []), { full: m[1], verified: base.verified }];
         if (!base.verified) current.guessed.push(base.name);
     }
@@ -405,7 +407,7 @@ function extractPoolData(html) {
     const tables = parseLimitedTables(html);
     const { elements, elementOf } = tables;
     // 沒有限定角色表的公告 (季節限定等新系列轉蛋) 才看小標題的名單
-    const limited = tables.limited.length > 0 ? tables.limited : parseHeadingLists(html);
+    const limited = tables.limited.length > 0 ? tables.limited : withPeriodSections(parseHeadingLists(html), html, elementOf);
     const collab = parseCollabSections(html);
     // 合作角色表：★6（獸神化前）的屬性優先 (卡池收的是這些)；同名的★4 等舊版本放在 elementOfLow，
     // 只有屬性表還沒有這個名稱時才用。同一篇公告裡同名的以先出現的為準
@@ -416,6 +418,41 @@ function extractPoolData(html) {
         if (!target[r.name]) target[r.name] = r.element;
     }));
     return { limited, elements, elementOf, elementOfLow, collab };
+}
+
+// 小標題的名單也看「介紹在轉蛋中登場的期間限定角色」段落：名稱沒有 α 的期間限定特別造型靠這段認出來 (記在 specials)
+function withPeriodSections(lists, html, elementOf) {
+    if (lists.length === 0) return lists;
+    periodSections(html).forEach(({ gacha, names }) => {
+        const list = lists.find((l) => gacha && poolKey(l.poolName) === poolKey(gacha)) || lists[0];
+        names.forEach((n) => {
+            elementOf[n.name] = n.element;
+            list.specials = [...(list.specials || []), n.name];
+            if (!list.names.some((x) => poolKey(x) === poolKey(n.name))) list.names.push(n.name);
+        });
+    });
+    return lists;
+}
+
+// 新系列轉蛋 (小標題的名單) 的角色是不是限定：名稱 (獸神化前或後) 有 α、在期間限定角色段落裡、
+// 或名冊標成期間限定／限定的才算；名冊標成常駐的一律不算。其他的 (例如「銀河冒險 II」的鄭和) 當成常駐，不收進卡池
+//   公告的文字格式分不出季節限定和常駐的新系列，所以看角色。名冊的類別由 apply-pools.js 放在 overrides.kinds
+const HAS_ALPHA_RE = /α/;
+function headingListLimited(list) {
+    const kinds = overrides.kinds || {};
+    const kindOf = (n) => kinds[poolKey(n)] || kinds[poolKey((overrides.global || {})[n] || '')] || '';
+    const specials = new Set((list.specials || []).map(poolKey));
+    const keep = [];
+    const regular = [];
+    list.names.forEach((n, i) => {
+        const kind = kindOf(n);
+        const full = (list.fulls || [])[i] || '';
+        const limited = kind === 'regular' ? false
+            : kind === 'period' || kind === 'limited' || specials.has(poolKey(n)) || HAS_ALPHA_RE.test(n) || HAS_ALPHA_RE.test(full);
+        if (limited) keep.push(n);
+        else regular.push(kind === 'regular' ? `${n}（名冊標成常駐）` : n);
+    });
+    return { keep, regular };
 }
 
 // ---- 名稱比對 ----
@@ -775,7 +812,8 @@ function planComboLimited(poolsData, item) {
 
 // 本家 (祭典等)：限定角色表 → 活動名稱對到的限定卡池
 function planHonke(poolsData, item, earlierFlags) {
-    const { event, data } = item;
+    const { event } = item;
+    let { data } = item;
     const flags = earlierFlags || [];
     const flag = (message) => flags.push({ event: event.event, source: event.source, message });
     if (data.limited.length === 0) return result(poolsData, null, flags);
@@ -790,6 +828,24 @@ function planHonke(poolsData, item, earlierFlags) {
     const distinct = new Set(data.limited.map((l) => poolKey(l.poolName)).filter(Boolean));
     if (named.length > 0 && distinct.size > new Set(named.map((l) => poolKey(l.poolName))).size) {
         return planHonke(poolsData, { event, data: { ...data, limited: named } }, flags);
+    }
+    // 小標題的名單 (新系列轉蛋)：只留限定角色，常駐的拿掉並標出來；整期都沒有限定角色就不建卡池
+    if (data.limited.some((l) => l.fromHeadings)) {
+        const lists = data.limited.map((l) => {
+            if (!l.fromHeadings) return l;
+            const { keep, regular } = headingListLimited(l);
+            if (regular.length) {
+                flag(keep.length
+                    ? `「${regular.join('」「')}」當成常駐角色（名稱沒有 α），沒有收進卡池；如果其實是限定，請到角色頁把類別改成期間限定`
+                    : `這期新系列的角色（${regular.join('、')}）都當成常駐角色（名稱沒有 α），沒有建立限定卡池；如果其實是限定，請到角色頁把類別改成期間限定`);
+            }
+            const kept = new Set(keep.map(poolKey));
+            return { ...l, names: keep,
+                guessed: (l.guessed || []).filter((n) => kept.has(poolKey(n))),
+                ordered: (l.ordered || []).filter((o) => kept.has(poolKey(o.name))) };
+        }).filter((l) => l.names.length > 0);
+        data = { ...data, limited: lists };
+        if (lists.length === 0) return result(poolsData, null, flags);
     }
     // 小標題的名單：內文沒有引用到的名稱是推測的，標出來
     data.limited.forEach((l) => (l.guessed || []).forEach((n) => flag(`「${n}」是從小標題「${l.header}」下面的獸神化後名稱推測的獸神化前名稱（公告內文沒有寫），請確認`)));
