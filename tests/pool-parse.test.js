@@ -583,3 +583,14 @@ test('新系列轉蛋：有限定角色表的祭典 (世足激獸神) 不受影�
     const r = X.planPoolChanges(POOLS(), [item('2026-11月 綠色幻想', '2026-11-20', 'honke', FESTIVAL)]);
     assert.ok(r.flags.every((f) => !/當成常駐/.test(f.message)));
 });
+
+test('合作祭典 (合作混本家限定)：合作卡池用作品名稱，不用祭典名稱', () => {
+    const html = COLLAB.replace(/轉蛋「作品A」開跑！/g, '合作活動角色也是轉出對象的轉蛋「激獸神祭」開跑！');
+    const r = X.planPoolChanges({ pools: [], names: {} }, [item('2023-04月 激獸神祭×輝夜姬想讓人告白', '2023-04-08', 'collab', html)]);
+    const added = r.changes.find((c) => c.type === 'new-collab');
+    assert.equal(added.pool, '輝夜姬想讓人告白');
+    assert.deepEqual(r.data.pools.find((p) => p.kind === 'collab').match, ['2023-04月+輝夜姬想讓人告白']);
+    // 一般合作照舊用轉蛋段落的名稱
+    const n = X.planPoolChanges({ pools: [], names: {} }, [item('2026-05月 作品A', '2026-05-01', 'collab', COLLAB)]);
+    assert.equal(n.changes.find((c) => c.type === 'new-collab').pool, '作品A');
+});

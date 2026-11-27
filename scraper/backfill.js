@@ -117,6 +117,17 @@ async function listArticles(cutoff) {
     return all.filter((i) => (urlDate(i.url) || '9999') >= cutoff);
 }
 
+// 合作祭典的公告 (轉蛋名稱是「激獸神祭」) 改用活動清單的寫法「激獸神祭×作品」，作品名稱取自標題
+//   「【怪物彈珠×輝夜姬想讓人告白】合作活動將於…」→「2023-04月 激獸神祭×輝夜姬想讓人告白」；其他照原本的活動名稱
+const FESTIVAL_RE = /祭$/;
+function collabEventName(event, title) {
+    const m = String(event).match(/^(\d{4}-\d{2}月)\s+(.+)$/);
+    const t = String(title || '').match(/【([^】]+)】/);
+    if (!m || !FESTIVAL_RE.test(m[2]) || !t) return event;
+    const work = t[1].split('×').map((x) => x.trim()).filter((x) => x && !/^怪物彈珠$/.test(x)).join('×');
+    return work ? `${m[1]} ${m[2]}×${work}` : event;
+}
+
 // 活動清單 + 讀好的公告 → 卡池資料 { items, flags }
 function buildItems(events, parsed, since) {
     const items = [];
@@ -134,6 +145,16 @@ function buildItems(events, parsed, since) {
     parsed.filter((p) => p.scraped.tag === 'honke' && p.scraped.date >= since && !used.has(p.scraped.source) && p.data.limited.length > 0)
         .forEach((p) => items.push({
             event: { event: p.scraped.event, date: p.scraped.date, tag: 'honke', source: p.scraped.source, unlogged: true },
+            data: p.data
+        }));
+
+    // 活動清單開始之前 (清單最早是 2023-08-26) 的合作公告：沒有活動可以對，直接用公告的活動名稱建合作卡池 (只收 ★6)
+    //   清單開始之後的合作公告一律要對到活動才用，免得名稱不同時多出重複的卡池
+    const firstEvent = events.map((e) => e.date).sort()[0] || '9999-99-99';
+    parsed.filter((p) => p.scraped.tag === 'collab' && p.scraped.date >= since && p.scraped.date < firstEvent && !used.has(p.scraped.source)
+        && p.data.collab.length > 0)
+        .forEach((p) => items.push({
+            event: { event: collabEventName(p.scraped.event, p.title), date: p.scraped.date, tag: 'collab', source: p.scraped.source, unlogged: true },
             data: p.data
         }));
 
@@ -168,7 +189,7 @@ async function main() {
         try {
             const html = await fetchText(article.url);
             const scraped = parseArticle(html, article.url, article.title);
-            if (scraped) parsed.push({ scraped, data: extractPoolData(html) });
+            if (scraped) parsed.push({ scraped, title: article.title, data: extractPoolData(html) });
         } catch (error) {
             console.warn(`\n[略過] ${article.url}：${error.message}`);
         }
@@ -189,4 +210,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { fromFirestore, findArticle, buildItems, GACHA_TITLE_RE };
+module.exports = { collabEventName, fromFirestore, findArticle, buildItems, GACHA_TITLE_RE };

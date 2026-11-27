@@ -609,8 +609,12 @@ function planCollab(poolsData, item) {
         flag('活動名稱沒有年月，無法建立合作卡池，需要手動處理');
         return none;
     }
+    // 卡池名稱：轉蛋段落的名稱。合作祭典 (合作角色混本家限定，轉蛋名稱是「激獸神祭」) 用活動名稱「激獸神祭×作品」的作品
+    const bare = event.event.replace(/^\d{4}-\d{2}月\s*/, '');
+    const combo = bare.match(/^[^×]*祭\s*×\s*(.+)$/);
+    const gacha = sections.map((s) => s.gachaName).find(Boolean) || '';
     const poolName = existing.length === 1 ? existing[0].pool
-        : (sections.map((s) => s.gachaName).find(Boolean) || event.event.replace(/^\d{4}-\d{2}月\s*/, ''));
+        : (gacha && !(combo && /祭$/.test(gacha)) ? gacha : (combo ? combo[1].trim() : (gacha || bare)));
     const mainRaw = sections.flatMap((s) => s.lists[0]);
     const mainGacha = sections.map((s) => s.gachaName).find(Boolean) || '';
     const reruns = [
@@ -906,7 +910,7 @@ function planHonke(poolsData, item, earlierFlags) {
 //   本家活動：本家限定卡池
 //   合作活動：合作卡池；活動名稱也對到本家限定卡池時 (合作祭典) 再更新本家限定卡池，兩種卡池分開
 function planOne(poolsData, item) {
-    if (item.event.unlogged) {
+    if (item.event.unlogged && item.event.tag !== 'collab') {
         // 活動清單沒有的本家祭典 (回補用)：只加進已經有的卡池，不新增卡池、不標出來
         const parsed = readPools(poolsData);
         const header = item.data.limited.map((l) => l.poolName).find(Boolean) || '';
