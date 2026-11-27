@@ -853,7 +853,7 @@
     {"id": "c0865", "name": "魅魔", "element": "光"},
     {"id": "c0866", "name": "魯格", "element": "光"},
     {"id": "c0867", "name": "機光院智世", "element": "光"},
-    {"id": "c0868", "name": "機光院智世α", "element": "闇", "kind": "period"},
+    {"id": "c0868", "name": "機光院智世α", "element": "闇", "kind": "period", "forms": [{"name":"MDT 婚禮革新者・生存α","form":"獸神化"}]},
     {"id": "c0869", "name": "穆", "element": "光"},
     {"id": "c0870", "name": "穆罕默德・阿布德爾", "element": "火"},
     {"id": "c0871", "name": "穆α", "element": "水", "kind": "period"},
