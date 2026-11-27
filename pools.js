@@ -216,9 +216,38 @@
         throw new Error('不認得的修改');
     }
 
+    // =====================================================
+    // 抽卡紀錄與果實分配裡的角色名稱：結尾可能有同名編號「-2」和果實分配的註記「(擊種)」
+    //   「虹夏-2(擊種)」→ base「虹夏」、suffix「-2(擊種)」
+    //   抽卡統計 (notes.js、script.js) 和果實分配都用這裡的規則，改規則只改這裡
+    // =====================================================
+    const CHARACTER_NOTE_TAGS = ['同族', '戰型', '擊種', '雙削'];
+    const NAME_SUFFIX_RE = new RegExp(String.raw`^(.*?)((?:-\d+)?(?:\s*[(（](?:${CHARACTER_NOTE_TAGS.join('|')})[)）])?)$`);
+
+    // 名稱 → { base, suffix }，兩個都去掉前後空白
+    function splitCharacterName(name) {
+        const text = typeof name === 'string' ? name : (name == null ? '' : String(name));
+        const m = text.match(NAME_SUFFIX_RE);
+        return m ? { base: m[1].trim(), suffix: m[2].trim() } : { base: text.trim(), suffix: '' };
+    }
+
+    // 拿掉同名編號與註記後的名稱：「虹夏-2(擊種)」→「虹夏」
+    const baseCharacterName = (name) => splitCharacterName(name).base;
+
+    // 套用名稱修正 (shared/characters)，保留同名編號與註記：「砲姐-2(擊種)」→「御坂美琴-2(擊種)」
+    //   新名稱裡的空白拿掉 (抽卡紀錄用空白分隔角色)；沒有修正 (或繞回自己) 時原樣回傳
+    function fixCharacterName(fixes, name) {
+        const { base, suffix } = splitCharacterName(name);
+        if (!base) return name;
+        const resolved = resolveName(fixes, base);
+        if (resolved === base) return name;
+        return resolved.replace(/\s+/g, '') + suffix;
+    }
+
     const api = {
         poolKey, readPools, eventMonth, matchingPools, poolsForEvent, buildLimitedLookup, isPeriodPool,
-        readNameFixes, resolveName, isDistinct, applyNameFix
+        readNameFixes, resolveName, isDistinct, applyNameFix,
+        CHARACTER_NOTE_TAGS, splitCharacterName, baseCharacterName, fixCharacterName
     };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     else root.CharacterPools = api;

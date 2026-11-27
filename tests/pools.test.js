@@ -204,3 +204,47 @@ test('複刻卡池的 label：讀進來，沒有時是空字串', () => {
     ] });
     assert.deepEqual(P.map((p) => p.label), ['第1彈', '']);
 });
+
+// ---- 角色名稱的同名編號與註記 (抽卡統計、果實分配共用) ----
+const { CHARACTER_NOTE_TAGS, splitCharacterName, baseCharacterName, fixCharacterName } = require('../pools.js');
+
+test('註記只有果實分配的四種', () => {
+    assert.deepEqual(CHARACTER_NOTE_TAGS, ['同族', '戰型', '擊種', '雙削']);
+});
+
+test('拆出同名編號與註記：-2、(擊種)、（同族）、-2(雙削)、前面有空白', () => {
+    assert.deepEqual(splitCharacterName('虹夏-2'), { base: '虹夏', suffix: '-2' });
+    assert.deepEqual(splitCharacterName('虹夏(擊種)'), { base: '虹夏', suffix: '(擊種)' });
+    assert.deepEqual(splitCharacterName('虹夏（同族）'), { base: '虹夏', suffix: '（同族）' });
+    assert.deepEqual(splitCharacterName('虹夏-2(雙削)'), { base: '虹夏', suffix: '-2(雙削)' });
+    assert.deepEqual(splitCharacterName('虹夏 (戰型)'), { base: '虹夏', suffix: '(戰型)' });
+    assert.deepEqual(splitCharacterName('  虹夏  '), { base: '虹夏', suffix: '' });
+    // 不是那四種的括號、名稱中間的「-」(後面不是數字)、非字串都不動
+    assert.deepEqual(splitCharacterName('虹夏(其他)'), { base: '虹夏(其他)', suffix: '' });
+    // 已知：名稱本身以「-數字」結尾 (c0910「P-47」) 也會被當成同名編號，和三份舊副本的規則相同
+    assert.deepEqual(splitCharacterName('P-47'), { base: 'P', suffix: '-47' });
+    assert.deepEqual(splitCharacterName('X-Y'), { base: 'X-Y', suffix: '' });
+    assert.deepEqual(splitCharacterName(null), { base: '', suffix: '' });
+    assert.equal(baseCharacterName('虹夏-2(擊種)'), '虹夏');
+    assert.equal(baseCharacterName('Two for all α'), 'Two for all α');
+});
+
+test('套用名稱修正：保留編號與註記、新名稱的空白拿掉、連續修正、繞回自己、沒有修正', () => {
+    const fixes = readNameFixes({ renames: [
+        { from: '砲姐', to: '御坂美琴' },
+        { from: 'TFA', to: 'Two for all α' },
+        { from: 'A', to: 'B' }, { from: 'B', to: 'C' },
+        { from: '甲', to: '乙' }, { from: '乙', to: '甲' }
+    ] });
+    assert.equal(fixCharacterName(fixes, '砲姐'), '御坂美琴');
+    assert.equal(fixCharacterName(fixes, '砲姐-2'), '御坂美琴-2');
+    assert.equal(fixCharacterName(fixes, '砲姐(擊種)'), '御坂美琴(擊種)');
+    assert.equal(fixCharacterName(fixes, '砲姐（同族）'), '御坂美琴（同族）');
+    assert.equal(fixCharacterName(fixes, '砲姐-2(雙削)'), '御坂美琴-2(雙削)');
+    assert.equal(fixCharacterName(fixes, 'TFA-3'), 'Twoforallα-3');          // 新名稱裡有空白
+    assert.equal(fixCharacterName(fixes, 'A-2'), 'C-2');                      // 連續修正
+    assert.equal(fixCharacterName(fixes, '甲(戰型)'), '甲(戰型)');            // 繞回自己：原樣
+    assert.equal(fixCharacterName(fixes, '御坂 美琴-2'), '御坂 美琴-2');      // 沒有修正：原樣 (空白也不動)
+    assert.equal(fixCharacterName(fixes, '-2'), '-2');
+    assert.equal(fixCharacterName(null, '砲姐-2'), '砲姐-2');
+});

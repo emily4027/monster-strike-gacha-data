@@ -18,6 +18,7 @@
 - 檔案分類：網頁的程式放進 `js/`、樣式放進 `css/`。`pools.js`、`pools.json` 留在最外層（抽卡統計從這個網址載入）。
 
 ### 新增 (Added)
+- `pools.js` 新增角色名稱的共用規則：`CHARACTER_NOTE_TAGS`、`splitCharacterName`、`baseCharacterName`、`fixCharacterName`，給抽卡統計和果實分配共用（名稱規則只剩一份）。
 - 爬蟲：活動名稱對到好幾個限定卡池時，名稱是別的卡池一部分的不算（「新娘 5」不再同時對到「新娘」）。
 - 爬蟲：獸神化後的名稱裡沒有獸神化前的名稱時（「MDT 婚禮革新者・生存α」），照公告開頭介紹新角色的順序對應（「機光院智世α」），並在 PR 標出來請確認。順便修好「推測的名稱」提醒沒出現在 PR 的問題。
 - **共用資料每日備份**：爬蟲每天先把 Firestore `shared/events`、`shared/characters`、`shared/roster` 存進 `backup/firestore/`，`scraper/restore.js` 可以用某天的備份還原。
