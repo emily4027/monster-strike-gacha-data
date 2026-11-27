@@ -273,3 +273,18 @@ test('手動補卡池：不合理的輸入', () => {
     assert.deepEqual(R.readEdits({ pools: [{ id: 'c0001', pool: '甲', month: '2024-6' }, { id: 'c0001', pool: '甲', month: '2024-06', source: 'http://x' }] }).pools,
         [{ id: 'c0001', pool: '甲', month: '2024-06' }]);
 });
+
+test('修改檔：改名稱時舊名稱自動留成別名', () => {
+    const base = BASE();
+    let e = R.applyOp(base, null, { type: 'save', id: 'c0003', character: { name: '雷姆α', aliases: ['蕾姆'] } });
+    assert.deepEqual(e.chars.c0003.aliases, ['蕾姆', '雷姆']);
+    // 舊名稱已經在別名或形態裡就不重複加
+    e = R.applyOp(base, null, { type: 'save', id: 'c0004', character: { name: '拉姆α', forms: [{ name: '拉姆' }] } });
+    assert.equal(e.chars.c0004.aliases, undefined);
+    // 名稱沒變 (只差空白) 不加
+    e = R.applyOp(base, null, { type: 'save', id: 'c0001', character: { name: ' 洛基 ' } });
+    assert.equal(e.chars.c0001.aliases, undefined);
+    // 第二次改名：用的是已存的名稱「雷姆α」當舊名稱
+    e = R.applyOp(base, R.applyOp(base, null, { type: 'save', id: 'c0003', character: { name: '雷姆α' } }), { type: 'save', id: 'c0003', character: { name: '雷姆β', aliases: ['雷姆'] } });
+    assert.deepEqual(e.chars.c0003.aliases, ['雷姆', '雷姆α']);
+});

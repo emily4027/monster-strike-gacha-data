@@ -2,7 +2,7 @@
 // 卡池：活動 → 可以抽到的角色 (純函式，不碰 DOM)
 // 瀏覽器：window.CharacterPools；Node (測試)：require('./pools.js')
 //
-// 抽卡統計會從 /monster-strike-gacha-data/pools.js 載入這支檔案和 pools.json (舊網址 /monster-strike-character-catalog/ 過渡期間也保留一份)，
+// 抽卡統計會從 /monster-strike-gacha-data/pools.js 載入這支檔案和 pools.json，
 // 選好活動後把卡池角色列成按鈕。改動函式名稱或 pools.json 格式時，抽卡統計要一起確認。
 // =====================================================
 (function (root) {

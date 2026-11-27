@@ -13,7 +13,7 @@
 | 📅 行事曆（`index.html`） | 月曆查看轉蛋活動、每場活動投入的抽數、這期卡池抽到了誰 |
 | 📖 角色（`characters.html`） | 所有帳號抽到的角色總覽、卡池標記；管理員的角色名稱修正 |
 
-兩頁共用登入狀態。網頁只讀取抽卡紀錄，**會寫入的只有管理員的兩個功能**：角色頁的名稱修正（`shared/characters`）、行事曆的編輯活動（`shared/events`）。
+兩頁共用登入狀態。網頁只讀取抽卡紀錄，**會寫入的只有管理員的三個功能**：角色頁的名稱修正（`shared/characters`）、角色頁編輯模式改名冊（`shared/roster`）、行事曆的編輯活動（`shared/events`）。
 
 ---
 
@@ -111,6 +111,8 @@ FIREBASE_SERVICE_ACCOUNT='<金鑰 JSON>' node scraper/restore.js events --ref <c
 FIREBASE_SERVICE_ACCOUNT='<金鑰 JSON>' node scraper/restore.js events --ref <commit> --yes
 ```
 
+比較模式也會檢查「備份轉回 Firestore 格式後再存一次是否一模一樣」（時間欄位、空文件），對不上就不寫入。沒有金鑰的電腦可以到 **Actions → 備份比較（只讀）→ Run workflow** 跑比較模式（只讀不寫，永遠不加 `--yes`）。
+
 ---
 
 ## 🔧 爬蟲設定（只需要做一次）
@@ -200,6 +202,7 @@ node apply-pools.js pool-items.json pool-report.md   # 會改 pools.json，看�
 
 - 修改存在 Firestore `shared/roster`（修改檔），網頁讀 `characters.json` 後套上修改檔，所以**存檔後這個網站立刻生效**。
 - 爬蟲每天執行時把修改檔寫回 `characters.json` 和 `pools.json`（`scraper/fold-roster.js`，直接 commit）。抽卡統計的角色按鈕讀的是 `pools.json`，所以改名最慢隔天才會跟上。
+- **改名稱時舊名稱自動留成別名**（卡池和名冊還認得舊寫法）。抽卡紀錄裡的舊名稱不會跟著改；要改請到「管理員：名稱修正」加一筆。
 - 「加進名冊」的新角色要等爬蟲寫回時才有編號；有開著的卡池 PR 時會等 PR 處理完再編（免得和 PR 裡的新角色撞號）。
 - 本機預覽：網址加 `?previewAdmin`（只在 `localhost` 有效，存檔會被 Firestore 規則擋下）。
 
@@ -303,23 +306,19 @@ node --test tests/
 
 ---
 
-## 🧰 正式上線時
+## 🧰 上線檢查表
 
-1. 工具箱 `monster-strike-toolbox/tools.js` 的 `MS_TOOLS` 加一筆（`parent: 'gacha'`：首頁不顯示卡片，懸浮選單照樣列出）：
-   ```js
-   {
-       id: 'gacha-data',
-       name: '轉蛋資料庫',
-       description: '抽卡統計的附屬工具：活動行事曆、卡池與抽到的角色。',
-       url: 'https://emily4027.github.io/monster-strike-gacha-data/',
-       emoji: '🗂️',
-       color: '#ef6c00',
-       bg: '#fff3e0',
-       parent: 'gacha',
-   },
-   ```
-2. 抽卡統計、果實分配加入口連結；它們的 `index.html` 裡寫死的懸浮工具箱連結（讀不到 `tools.js` 時用的）各補一個。
-3. `CHANGELOG.md` 的「未發布 - 測試版」改成 `[1.0.0]` 和上線日期。
+工具箱首頁與懸浮選單的入口已由工具箱 1.5.0 處理（`tools.js` 的 `gacha-data`，`parent: 'gacha'`：掛在抽卡統計卡片底下），這個 repo 不用改工具箱。上線（或爬蟲、網頁出狀況）時逐項確認：
+
+- [ ] **Actions secret**：Settings → Secrets and variables → Actions 有 `FIREBASE_SERVICE_ACCOUNT`（作法見「爬蟲設定」第 1 步）。
+- [ ] **允許 Actions 開 PR**：Settings → Actions → General →「Allow GitHub Actions to create and approve pull requests」已勾選。
+- [ ] **爬蟲正常**：`gh run list --workflow scrape.yml -L 5` 最近幾次是 success，`backup/firestore/` 有當天的備份 commit（沒變動那天不會有）。
+- [ ] **備份讀得到**：Actions →「備份比較（只讀）」→ Run workflow（`events`），出現「寫入檢查：…內容一致」；雲端比備份多幾筆是爬蟲當天新增的，正常。
+- [ ] **沒有未處理的卡池 PR**：`gh pr list --head pools-update` 是空的，或已確認要 Merge／關掉（開著且和 main 衝突時，爬蟲每天都會失敗）。
+- [ ] **GitHub Pages**：Settings → Pages 的來源是 `main` 分支根目錄。
+- [ ] **正式網域載得到共用檔**：打開 https://emily4027.github.io/monster-strike-gacha-data/ 和 `characters.html`，console 沒有錯誤；`/monster-strike-toolbox/shared/firebase.js`、`shared/shared.js`、`theme.css` 都是 200（用根相對路徑，只有在 `emily4027.github.io` 底下才對；本機要從 `Monster-Strike` 資料夾開伺服器）。
+- [ ] **懸浮選單**：顯示工具箱 `tools.js` 的清單，「轉蛋資料庫」標著現行。
+- [ ] **抽卡統計的角色按鈕**：抽卡統計選好活動後，這期卡池的角色按鈕有出來（讀這裡的 `pools.js`、`pools.json`）。
 
 ## 💡 之後的功能
 

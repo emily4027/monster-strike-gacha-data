@@ -343,7 +343,7 @@
     }
 
     // 在修改檔上套用一個修改，回傳新的修改檔 (不改動傳入的物件)。data：characters.json
-    //   { type: 'save', id, character }：存這隻角色 (同時當成確認過，拿掉 new)
+    //   { type: 'save', id, character }：存這隻角色 (同時當成確認過，拿掉 new)；改了名稱時舊名稱自動加進別名
     //   { type: 'add', character, original }：加一隻還沒有編號的新角色 (original：要取代的那筆還沒編號的角色名稱)
     //   { type: 'merge', from, fromName, into, as }：from (編號；還沒編號的角色給 fromName) 其實是 into 這隻，
     //        名稱併成 into 的別名 (as: 'alias') 或形態 (as: 'form')
@@ -362,7 +362,12 @@
         if (type === 'save') {
             const old = listOf(current).find((c) => c.id === op.id && !c.pending);
             if (!old) throw new Error('找不到這隻角色（可能已經被合併）');
-            next.chars[op.id] = cleanCharacter({ ...op.character, id: op.id }, false);
+            const character = cleanCharacter({ ...op.character, id: op.id }, false);
+            // 改了名稱：舊名稱自動留成別名，卡池和舊紀錄寫的舊名稱還認得 (使用者自己刪掉別名就不會再加回來，因為下次存檔時舊名稱就是現在的名稱)
+            if (poolKey(old.name) !== poolKey(character.name) && !namesOf(character).some((n) => poolKey(n) === poolKey(old.name))) {
+                character.aliases = [...(character.aliases || []), old.name];
+            }
+            next.chars[op.id] = character;
         } else if (type === 'add') {
             const character = cleanCharacter({ ...op.character, id: undefined }, false);
             const others = indexRoster({ characters: listOf(current).filter((c) => !(c.pending && poolKey(c.name) === poolKey(op.original || character.name))) }).byKey;

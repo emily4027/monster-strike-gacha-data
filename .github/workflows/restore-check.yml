@@ -1,0 +1,51 @@
+# 手動執行：用 scraper/restore.js 的「比較模式」對照雲端現在的共用資料和備份 (backup/firestore/)。
+# 只讀不寫：這個 workflow 永遠不加 --yes。真的要還原請在自己電腦上跑 restore.js (見 README「備份與還原」)。
+# 注意：每天的爬蟲在備份「之後」才新增活動、寫回名冊，所以雲端比備份多幾筆是正常的。
+name: 備份比較（只讀）
+
+on:
+  workflow_dispatch:
+    inputs:
+      doc:
+        description: '要比較的文件'
+        type: choice
+        options: [events, characters, roster]
+        default: events
+      ref:
+        description: '用哪個 commit 的備份 (空白＝最新的檔案)'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # --ref 要看得到舊的 commit
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: scraper/package-lock.json
+
+      - name: 安裝套件
+        working-directory: scraper
+        run: npm ci --no-audit --no-fund
+
+      - name: 比較 (不寫入)
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DOC: ${{ inputs.doc }}
+          REF: ${{ inputs.ref }}
+        run: |
+          if [ -n "$REF" ]; then
+            node scraper/restore.js "$DOC" --ref "$REF"
+          else
+            node scraper/restore.js "$DOC"
+          fi

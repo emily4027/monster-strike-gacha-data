@@ -449,12 +449,14 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPoolOptions();
             elementClass = await S.loadElementClasses();
             render();
+            return true;
         } catch (e) {
             console.error('[ROSTER] 名冊存檔失敗', e);
             const denied = e && e.code === 'permission-denied';
             const text = denied ? '沒有寫入權限（需要用管理員帳號登入）。' : `存不了：${(e && e.message) || e}`;
             if (errorBox) errorBox.textContent = text;
             else alert(text);
+            return false;
         }
     }
 
@@ -598,7 +600,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const clash = Roster.nameClash(roster.data, c.id, character);
             if (clash) { error.replaceChildren(renderClash(c, clash, error)); return; }
             const op = c.id ? { type: 'save', id: c.id, character } : { type: 'add', character, original: c.name };
-            saveRosterOp(op, character.name.trim(), error);
+            const renamed = c.id && poolKey(character.name) !== poolKey(c.name);
+            saveRosterOp(op, character.name.trim(), error).then((ok) => {
+                if (ok && renamed) alert(`已存檔。舊名稱「${c.name}」自動留成別名，卡池和名冊還認得它。
+
+抽卡紀錄裡寫「${c.name}」的不會跟著改；要改成新名稱，請到上方「管理員：名稱修正」加一筆。`);
+            });
         });
         // 只差一個字：確認是不同角色
         row.issues.filter((i) => i.type === 'similar').forEach((i) => (i.others || []).forEach((otherId) => {

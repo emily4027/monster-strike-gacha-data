@@ -48,3 +48,33 @@ test('還原的參數：只接受三份文件、--ref 和 --file 不能一起用
     assert.throws(() => parseArgs(['events', '--ref', 'a', '--file', 'b']), /只能選一個/);
     assert.throws(() => parseArgs(['events', '--force']), /看不懂/);
 });
+
+test('陣列和巢狀物件裡的時間也會來回轉換', () => {
+    const data = { events: [{ updatedAt: fakeTs('2026-11-01T00:00:00.000Z'), log: [fakeTs('2026-11-02T00:00:00.000Z')] }] };
+    const backup = JSON.parse(S.format(data));
+    assert.deepEqual(backup.events[0].log, [{ __timestamp__: '2026-11-02T00:00:00.000Z' }]);
+    const out = S.decode(backup, (d) => fakeTs(d.toISOString()));
+    assert.equal(out.events[0].updatedAt.iso, '2026-11-01T00:00:00.000Z');
+    assert.equal(out.events[0].log[0].iso, '2026-11-02T00:00:00.000Z');
+});
+
+test('只有 __timestamp__ 一個欄位才當成時間', () => {
+    const value = { __timestamp__: '2026-11-01T00:00:00.000Z', note: 'x' };
+    assert.deepEqual(S.decode(value, () => { throw new Error('不該呼叫'); }), value);
+});
+
+test('比較：一樣、不一樣、文件不存在、寫入檢查', () => {
+    const { compare } = require('../scraper/restore.js');
+    const toTs = (d) => fakeTs(d.toISOString());
+    const backup = JSON.parse(S.format({ events: [{ event: 'a' }], updatedAt: fakeTs('2026-11-27T04:00:00.000Z') }));
+    assert.deepEqual(compare(S.format(backup), backup, toTs), { same: true, writable: true });
+    assert.deepEqual(compare(S.format({ events: [] }), backup, toTs), { same: false, writable: true });
+    assert.deepEqual(compare(S.format(null), null, toTs), { same: true, writable: true });
+    assert.equal(compare(S.format(backup), backup, () => fakeTs('1999-01-01T00:00:00.000Z')).writable, false);
+});
+
+test('還原的參數：--ref、--file 後面一定要有值', () => {
+    assert.deepEqual(parseArgs(['characters', '--file', 'x.json']), { name: 'characters', ref: null, file: 'x.json', yes: false });
+    assert.throws(() => parseArgs(['events', '--ref']), /後面要接 commit/);
+    assert.throws(() => parseArgs(['events', '--file', '--yes']), /後面要接檔案路徑/);
+});

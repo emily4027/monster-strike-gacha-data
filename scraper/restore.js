@@ -21,8 +21,11 @@ function parseArgs(argv) {
     const args = { name: argv[0], ref: null, file: null, yes: false };
     for (let i = 1; i < argv.length; i++) {
         if (argv[i] === '--yes') args.yes = true;
-        else if (argv[i] === '--ref') args.ref = argv[++i];
-        else if (argv[i] === '--file') args.file = argv[++i];
+        else if (argv[i] === '--ref' || argv[i] === '--file') {
+            const value = argv[++i];
+            if (!value || value.startsWith('--')) throw new Error(`${argv[i - 1]} 後面要接${argv[i - 1] === '--ref' ? ' commit' : '檔案路徑'}`);
+            args[argv[i - 1].slice(2)] = value;
+        }
         else throw new Error(`看不懂的參數：${argv[i]}`);
     }
     if (!S.DOCS.includes(args.name)) throw new Error(`第一個參數要是 ${S.DOCS.join('、')} 其中一個`);
@@ -34,6 +37,13 @@ function readBackup({ name, ref, file }) {
     if (file) return fs.readFileSync(file, 'utf8');
     if (ref) return execFileSync('git', ['show', `${ref}:backup/firestore/${name}.json`], { encoding: 'utf8' });
     return fs.readFileSync(path.join(S.BACKUP_DIR, `${name}.json`), 'utf8');
+}
+
+// 比較雲端現在和備份 (format 後的文字)，並檢查備份轉成要寫入的資料後，再存一次會不會一模一樣
+// (確認時間欄位能正確轉回 Timestamp、沒有欄位在轉換時遺失)。toTimestamp：Date → Firestore Timestamp
+function compare(currentText, backup, toTimestamp) {
+    const backupText = S.format(backup);
+    return { same: currentText === backupText, writable: S.format(S.decode(backup, toTimestamp)) === backupText };
 }
 
 async function main() {
@@ -49,7 +59,10 @@ async function main() {
     const currentText = S.format(snap.exists ? snap.data() : null);
     console.log(`雲端現在：${S.summarize(JSON.parse(currentText))}`);
     console.log(`備份    ：${S.summarize(backup)}`);
-    if (currentText === S.format(backup)) { console.log('兩邊一樣，不用還原'); return; }
+    const result = compare(currentText, backup, (date) => Timestamp.fromDate(date));
+    if (!result.writable) throw new Error('備份轉回 Firestore 格式後內容對不上，停止還原');
+    console.log('寫入檢查：備份轉回 Firestore 格式後內容一致');
+    if (result.same) { console.log('兩邊一樣，不用還原'); return; }
     if (!args.yes) { console.log('只是比較，沒有寫入。確定要還原請加 --yes'); return; }
 
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -64,7 +77,7 @@ async function main() {
     console.log(`已還原 shared/${args.name}`);
 }
 
-module.exports = { parseArgs };
+module.exports = { parseArgs, compare };
 
 if (require.main === module) {
     main().catch((error) => {
