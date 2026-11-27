@@ -7,33 +7,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 工具組共用風格（由工具箱提供，改一處五個工具一起變） -->
+    <link rel="stylesheet" href="/monster-strike-toolbox/theme.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/characters.css">
 </head>
-<body>
-    <div class="bg-decoration"></div>
+<body class="ms-page ms-has-dock">
 
-    <div class="container main-container">
-        <header class="app-header text-center">
-            <div class="icon-badge mx-auto mb-3">🗂️</div>
-            <h1>怪物彈珠轉蛋資料庫</h1>
-            <p class="app-subtitle">抽卡統計的附屬工具：轉蛋活動行事曆、卡池與抽到的角色</p>
+    <div class="container main-container ms-shell">
+        <header class="app-header ms-header">
+            <div class="ms-header-icon" aria-hidden="true">🗂️</div>
+            <h1 class="ms-title">怪物彈珠轉蛋資料庫</h1>
+            <p class="app-subtitle ms-subtitle">抽卡統計的附屬工具：轉蛋活動行事曆、卡池與抽到的角色</p>
 
-            <div id="cloudStatus" class="cloud-status">
+            <div id="cloudStatus" class="cloud-status ms-auth-status">
                 <span id="statusDot" class="status-dot"></span>
                 <span id="cloudStatusText">連線中...</span>
             </div>
 
-            <div id="auth-container" class="mt-2">
-                <button type="button" id="google-login-btn" class="auth-btn login">
+            <div id="auth-container" class="ms-auth">
+                <button type="button" id="google-login-btn" class="auth-btn login ms-login-btn">
                     <i class="bi bi-google"></i> 登入 Google 帳號以讀取雲端紀錄
                 </button>
-                <div id="user-info" hidden>
-                    <img id="user-avatar" alt="" class="rounded-circle" width="30" height="30" hidden>
+                <div id="user-info" class="ms-user-chip" hidden>
+                    <img id="user-avatar" alt="" class="ms-avatar" width="32" height="32" hidden>
                     <span id="user-display-name" class="fw-bold"></span>
                     <span id="admin-badge" class="admin-badge" hidden>管理員</span>
                     <button type="button" id="edit-mode-btn" class="btn btn-sm btn-outline-primary" aria-pressed="false" hidden>編輯模式</button>
-                    <button type="button" id="logout-btn" class="btn btn-sm btn-outline-secondary">登出</button>
+                    <button type="button" id="logout-btn" class="ms-btn ms-btn-sm ms-btn-ghost">登出</button>
                 </div>
             </div>
         </header>
@@ -49,7 +50,7 @@
         <div id="source-notice" class="source-notice" hidden></div>
 
         <!-- 篩選 -->
-        <div class="section-card">
+        <div class="section-card ms-card">
             <div class="filter-grid">
                 <div>
                     <label for="search-input" class="form-label">搜尋角色</label>
@@ -122,30 +123,39 @@
         </footer>
     </div>
 
-    <!-- 懸浮工具箱菜單 (工具連結會改用工具箱 tools.js 的清單；讀不到時使用下面的連結) -->
-    <div class="toolbox-menu-wrapper" title="滑鼠懸停以展開菜單">
-        <div class="toolbox-items-list">
-            <a href="https://emily4027.github.io/monster-strike-toolbox/" class="toolbox-item toolbox-home">
-                <i class="bi bi-house-fill"></i> 工具箱首頁
-            </a>
-            <a href="https://emily4027.github.io/monster-strike-fruit-assign/" class="toolbox-item">
-                <i class="bi bi-apple"></i> 果實分配
-            </a>
-            <a href="https://emily4027.github.io/monster-strike-gacha/" class="toolbox-item">
-                <i class="bi bi-bar-chart-line-fill"></i> 抽卡統計
-            </a>
-            <a href="https://emily4027.github.io/monster-strike-gacha-data/" class="toolbox-item active">
-                <i class="bi bi-archive-fill"></i> 轉蛋資料庫 (現行)
-            </a>
+    <!-- 浮動列：手機在底部固定一列（不蓋內容），桌機在右下角 -->
+    <nav class="ms-float" aria-label="其他工具與連結">
+        <!-- 懸浮工具箱菜單 (工具連結會改用工具箱 tools.js 的清單；讀不到時使用下面的連結) -->
+        <div class="toolbox-menu-wrapper" title="點擊或滑鼠移上去展開">
+            <div class="toolbox-items-list">
+                <a href="https://emily4027.github.io/monster-strike-toolbox/" class="toolbox-item toolbox-home">
+                    <i class="bi bi-house-fill"></i> 工具箱首頁
+                </a>
+                <a href="https://emily4027.github.io/monster-strike-fruit-assign/" class="toolbox-item">
+                    <i class="bi bi-apple"></i> 果實分配
+                </a>
+                <a href="https://emily4027.github.io/monster-strike-gacha/" class="toolbox-item">
+                    <i class="bi bi-bar-chart-line-fill"></i> 抽卡統計
+                </a>
+                <a href="https://emily4027.github.io/monster-strike-gacha-data/" class="toolbox-item active">
+                    <i class="bi bi-archive-fill"></i> 轉蛋資料庫 (現行)
+                </a>
+            </div>
+            <button type="button" class="toolbox-main-btn">
+                <i class="bi bi-tools"></i> 工具箱
+            </button>
         </div>
-        <button type="button" class="toolbox-main-btn">
-            <i class="bi bi-tools"></i> 工具箱
-        </button>
-    </div>
 
-    <a href="https://github.com/emily4027/monster-strike-gacha-data" target="_blank" rel="noopener" class="github-project-link" title="前往 GitHub 專案頁面">
-        <i class="bi bi-github"></i> GitHub
-    </a>
+        <a href="https://github.com/emily4027/monster-strike-gacha-data" target="_blank" rel="noopener" class="github-project-link" title="前往 GitHub 專案頁面">
+            <i class="bi bi-github"></i> GitHub
+        </a>
+    </nav>
+    <script>
+        // 純畫面：手機點「工具箱」展開／收合清單（桌機滑鼠移上去也會展開）
+        document.querySelector('.ms-float .toolbox-main-btn')?.addEventListener('click', (e) => {
+            e.currentTarget.parentElement.classList.toggle('is-open');
+        });
+    </script>
 
     <script type="module" src="js/firebase.js"></script>
     <script src="pools.js" defer></script>
