@@ -466,7 +466,22 @@
     {"id": "c0915", "name": "夜鷹α", "kind": "period", "forms": [{"name":"怪彈學院機器人社的希望 夜鷹α","form":"獸神化"}]},
     {"id": "c0916", "name": "惠比壽α", "kind": "period", "forms": [{"name":"賜予幸福的新娘神 惠比壽α","form":"獸神化"}]},
     {"id": "c0917", "name": "蒙大拿α", "kind": "period", "forms": [{"name":"威風堂堂的超弩級新娘 蒙大拿α","form":"獸神化"}]},
-    {"id": "c0918", "name": "斯卡塔赫α", "kind": "period", "forms": [{"name":"誓盟影炎的新娘女王 斯卡塔赫α","form":"獸神化"}]}
+    {"id": "c0918", "name": "斯卡塔赫α", "kind": "period", "forms": [{"name":"誓盟影炎的新娘女王 斯卡塔赫α","form":"獸神化"}]},
+    {"id": "c0919", "name": "畫眉丸", "element": "火", "new": true},
+    {"id": "c0920", "name": "山田淺右衛門佐切", "element": "木", "new": true},
+    {"id": "c0921", "name": "亞左弔兵衛", "element": "光", "new": true},
+    {"id": "c0922", "name": "米卡莎・阿卡曼＆阿爾敏・亞魯雷特", "element": "火", "new": true},
+    {"id": "c0923", "name": "約翰・基爾休坦＆柯尼・史普林格", "element": "水", "new": true},
+    {"id": "c0924", "name": "漢吉・佐耶＆里維兵長", "element": "光", "new": true},
+    {"id": "c0925", "name": "艾連・葉卡", "element": "火", "new": true},
+    {"id": "c0926", "name": "米卡莎・阿卡曼", "element": "木", "new": true},
+    {"id": "c0927", "name": "里維兵長", "element": "闇", "new": true},
+    {"id": "c0928", "name": "四宮輝夜", "element": "火", "new": true},
+    {"id": "c0929", "name": "早坂愛", "element": "光", "new": true},
+    {"id": "c0930", "name": "白銀御行", "element": "闇", "new": true},
+    {"id": "c0931", "name": "馮・霍恩海姆", "element": "火", "new": true},
+    {"id": "c0932", "name": "奧莉薇・米拉・阿姆斯壯", "element": "水", "new": true},
+    {"id": "c0933", "name": "莉莎・霍克愛＆羅伊・馬斯坦古", "element": "光", "new": true}
   ],
   "distinct": [["c0045","c0202"],["c0205","c0308"]]
 }
