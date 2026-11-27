@@ -1,0 +1,1026 @@
+{
+  "events": [
+    {
+      "date": "2026-11-23",
+      "endDate": "2026-11-25",
+      "event": "2026-11月 火焰之星",
+      "source": "https://www.monster-strike.com.tw/news/20261122_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-21",
+      "endDate": "2026-11-23",
+      "event": "2026-11月 水之遊宴",
+      "source": "https://www.monster-strike.com.tw/news/20261120_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-19",
+      "endDate": "2026-11-21",
+      "event": "2026-11月 真英雄祭",
+      "source": "https://www.monster-strike.com.tw/news/20261118_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-17",
+      "endDate": "2026-11-19",
+      "event": "2026-11月 STARLIGHT MIRAGE",
+      "source": "https://www.monster-strike.com.tw/news/20261116_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-15",
+      "endDate": "2026-12-02",
+      "event": "2026-11月 無職轉生～到了異世界就拿出真本事～",
+      "source": "https://www.monster-strike.com.tw/news/20261112_mt.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-11-13",
+      "endDate": "2026-11-15",
+      "event": "2026-11月 MIDNIGHT PARTY",
+      "source": "https://www.monster-strike.com.tw/news/20261112_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-12",
+      "endDate": "2026-11-15",
+      "event": "2026-11月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20261111_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-10",
+      "endDate": "2026-11-11",
+      "event": "2026-11月 怪物彈珠世代",
+      "source": "https://www.monster-strike.com.tw/news/20261109_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-07",
+      "event": "2026-11月 My BEST 10轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-11-07",
+      "endDate": "2026-11-10",
+      "event": "2026-11月 彩獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20261106_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-05",
+      "endDate": "2026-11-07",
+      "event": "2026-11月 綠色幻想",
+      "source": "https://www.monster-strike.com.tw/news/20261104_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-11-02",
+      "endDate": "2026-11-14",
+      "event": "2026-11月 藍色監獄",
+      "source": "https://www.monster-strike.com.tw/news/20261029_bl.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-10-30",
+      "endDate": "2026-11-05",
+      "event": "2026-10月 超獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20261029_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-10-16",
+      "endDate": "2026-11-02",
+      "event": "2026-10月 黃泉使者",
+      "source": "https://www.monster-strike.com.tw/news/20261015_tk.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-10-01",
+      "endDate": "2026-10-16",
+      "event": "2026-10月 《Re:從零開始的異世界生活》第2彈",
+      "source": "https://www.monster-strike.com.tw/news/20260926_rz.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-09-25",
+      "event": "2026-09月 「依登場年份抽10連！重溫那一天轉蛋」",
+      "tag": "free"
+    },
+    {
+      "date": "2026-09-19",
+      "event": "2026-09月 Hop！Step！限定！轉蛋",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-09-01",
+      "endDate": "2026-09-18",
+      "event": "2026-09月 Love Live! 系列",
+      "source": "https://www.monster-strike.com.tw/news/20260827_ll.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-08-22",
+      "event": "2026-08月 選擇方案最多200連！AGAIN轉蛋-AGAIN-",
+      "tag": "free"
+    },
+    {
+      "date": "2026-08-10",
+      "event": "2026-08月 選擇方案最多200連！AGAIN轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-08-08",
+      "endDate": "2026-08-11",
+      "event": "2026-08月 彩・獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20260807_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-08-02",
+      "event": "2026-08月 怪物彈珠暑假2026",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-07-24",
+      "event": "2026-07月 選拔！13週年人氣投票轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-07-14",
+      "endDate": "2026-08-02",
+      "event": "2026-07月 咒術迴戰",
+      "source": "https://www.monster-strike.com.tw/news/20260712_jj.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-07-13",
+      "endDate": "2026-07-19",
+      "event": "2026-07月 怪物彈珠世代2019〜所羅門篇〜",
+      "source": "https://www.monster-strike.com.tw/news/20260712_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-07-13",
+      "endDate": "2026-07-19",
+      "event": "2026-07月 怪物彈珠精選角色DX～亞森篇〜",
+      "source": "https://www.monster-strike.com.tw/news/20260712_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-07-11",
+      "endDate": "2026-07-12",
+      "event": "2026-07月 Ultra Charismatic LIVE!!",
+      "source": "https://www.monster-strike.com.tw/news/20260709_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-07-11",
+      "event": "2026-07月 日日耕耘轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-07-04",
+      "endDate": "2026-07-09",
+      "event": "2026-07月 世足激獸神",
+      "source": "https://www.monster-strike.com.tw/news/20260702_wc.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-06-12",
+      "endDate": "2026-07-02",
+      "event": "2026-06月 火影忍者疾風傳×怪物彈珠",
+      "source": "https://www.monster-strike.com.tw/news/20260611_ns.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-05-15",
+      "endDate": "2026-06-02",
+      "event": "2026-05月 坂本日常×怪物彈珠",
+      "source": "https://www.monster-strike.com.tw/news/20260514_sd.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-04-26",
+      "endDate": "2026-05-10",
+      "event": "2026-04月 超獸神祭×K-ON! 輕音部!",
+      "source": "https://www.monster-strike.com.tw/news/20260425_ko.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-04-10",
+      "event": "2026-04月 「每天抽完精挑細選！我的最愛轉蛋」",
+      "tag": "free"
+    },
+    {
+      "date": "2026-04-01",
+      "endDate": "2026-04-11",
+      "event": "2026-04月 激獸神祭×鏈鋸人",
+      "source": "https://www.monster-strike.com.tw/news/20260328_cm.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-03-29",
+      "event": "2026-03月 12.5th Half Anniversary紀念！保證★6轉蛋",
+      "source": "https://www.monster-strike.com.tw/news/20260328_01.html",
+      "tag": "free"
+    },
+    {
+      "date": "2026-03-15",
+      "endDate": "2026-04-02",
+      "event": "2026-03月 為美好的世界獻上祝福！",
+      "source": "https://www.monster-strike.com.tw/news/20260312_ks.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-03-01",
+      "event": "2026-03月 可用特玉抽！全明星大集合感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-03-01",
+      "event": "2026-02月 可用特玉抽！全明星大集合感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-02-13",
+      "endDate": "2026-03-02",
+      "event": "2026-02月 【我推的孩子】第二彈",
+      "source": "https://www.monster-strike.com.tw/news/20260211_ai.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-02-06",
+      "event": "2026-02月 彈珠好手精選角色",
+      "tag": "free"
+    },
+    {
+      "date": "2026-01-17",
+      "endDate": "2026-02-02",
+      "event": "2026-01月 葬送的芙莉蓮第二彈",
+      "source": "https://www.monster-strike.com.tw/news/20260115_au.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2026-01-14",
+      "endDate": "2026-01-17",
+      "event": "2026-01月 激獸神祭24%",
+      "source": "https://www.monster-strike.com.tw/news/20260113_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2026-01-11",
+      "event": "2026-01月 可和好友一起抽，2人同樂♪ 選擇轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2026-01-01",
+      "endDate": "2026-01-07",
+      "event": "2026-01月 新年特別版「超獸神祭」 (凜寧)",
+      "source": "https://www.monster-strike.com.tw/news/20251230_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-12-29",
+      "event": "2025-12月 保證1體！α轉蛋",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-12-20",
+      "event": "2025-12月 必定抽中！超獸神抽獎！",
+      "tag": "free"
+    },
+    {
+      "date": "2025-12-14",
+      "endDate": "2026-01-02",
+      "event": "2025-12月 超時空要塞系列",
+      "source": "https://www.monster-strike.com.tw/news/20251211_fb.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-12-06",
+      "endDate": "2025-12-10",
+      "event": "2025-12月 怪物彈珠動畫 特別版！激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20251204_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-12-02",
+      "endDate": "2025-12-14",
+      "event": "2025-12月 怪物彈珠聖誕節2025",
+      "source": "https://www.monster-strike.com.tw/news/20251201_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-11-21",
+      "event": "2025-11月 增加吧！保證興奮期待轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-11-15",
+      "endDate": "2025-12-02",
+      "event": "2025-11月 遊戲王SERIES",
+      "source": "https://www.monster-strike.com.tw/news/20251113_5d.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-11-01",
+      "event": "天魔的孤城 〜空中花園〜 500層 保證★6限定角色！",
+      "tag": "free"
+    },
+    {
+      "date": "2025-10-25",
+      "endDate": "2025-11-04",
+      "event": "2025-10月 超獸神祭×鬼滅之刃",
+      "source": "https://www.monster-strike.com.tw/news/20251023_mg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-10-18",
+      "event": "2025-10月 選拔！12週年人氣投票轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-10-15",
+      "endDate": "2025-10-22",
+      "event": "2025-10月 only α 豪華精選轉蛋",
+      "source": "https://www.monster-strike.com.tw/news/20251014_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-10-11",
+      "endDate": "2025-10-14",
+      "event": "2025-10月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20251010_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-10-10",
+      "event": "2025-10月 12週年轟絕感謝多人遊玩轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-10-04",
+      "endDate": "2025-10-09",
+      "event": "2025-10月 集結，天使的福音 (二代天使)",
+      "source": "https://www.monster-strike.com.tw/news/20250928_02.html",
+      "tag": "free"
+    },
+    {
+      "date": "2025-10-01",
+      "endDate": "2025-10-14",
+      "event": "2025-10月 膽大黨",
+      "source": "https://www.monster-strike.com.tw/news/20250928_ky.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-09-13",
+      "endDate": "2025-09-30",
+      "event": "2025-09月 動畫《物語》系列",
+      "source": "https://www.monster-strike.com.tw/news/20250911_mg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-09-06",
+      "endDate": "2025-09-09",
+      "event": "2025-09月 激獸神祭 (厄莉絲)",
+      "source": "https://www.monster-strike.com.tw/news/20250905_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-09-04",
+      "event": "2025-09月 先看再決定！先抽後付10連轉蛋",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-08-16",
+      "endDate": "2025-09-02",
+      "event": "2025-08月 女神異聞錄５ 皇家版",
+      "source": "https://www.monster-strike.com.tw/news/20250814_pg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-08-09",
+      "event": "2025-08月 選擇方案最多200連！AGAIN轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-08-02",
+      "event": "2025-08月 怪物彈珠暑假2025～偶像的夏日假期～",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-07-15",
+      "endDate": "2025-08-02",
+      "event": "2025-07月 機動戰士Gundam GQuuuuuuX",
+      "source": "https://www.monster-strike.com.tw/news/20250713_gq.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-07-14",
+      "endDate": "2025-07-20",
+      "event": "2025-07月 怪物彈珠精選角色 DX ～妮奧篇～",
+      "source": "https://www.monster-strike.com.tw/news/20250712_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2025-06-14",
+      "endDate": "2025-06-23",
+      "event": "2025-06月 綠色幻想×MIDNIGHT PARTY×藥師少女的獨語",
+      "source": "https://www.monster-strike.com.tw/news/20250612_kg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-06-07",
+      "event": "2025-06月 可完全看到角色！ 透明轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-06-02",
+      "endDate": "2025-06-14",
+      "event": "2025-06月 祝宴！怪物彈珠新娘 5",
+      "source": "https://www.monster-strike.com.tw/news/20250601_01.html",
+      "tag": "free"
+    },
+    {
+      "date": "2025-06-01",
+      "event": "2025-06月 翻牌",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-30",
+      "event": "2025-05月 台版11th ANNIVERSARY感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-24",
+      "endDate": "2025-06-02",
+      "event": "2025-05月 超獸神祭×孤獨搖滾！",
+      "source": "https://www.monster-strike.com.tw/news/20250522_br.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-05-22",
+      "endDate": "2025-05-24",
+      "event": "2025-05月 光季 STARLIGHT MIRAGE",
+      "source": "https://www.monster-strike.com.tw/news/20250521_01.html",
+      "tag": "honke"
+    },
+    {
+      "aliases": [
+        "2025-05月 木季 綠色幻想 (艾特華爾)"
+      ],
+      "date": "2025-05-17",
+      "endDate": "2025-05-22",
+      "event": "2025-05月 綠色幻想 (艾特華爾)",
+      "source": "https://www.monster-strike.com.tw/news/20250517_01.html",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-17",
+      "event": "2025-05月 真英雄祭",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-13",
+      "event": "2025-05月 期間限定！繁體中文版怪物彈珠11週年紀念禮包",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-06",
+      "event": "2025-05月 每日滾滾！限定機會提升轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-05-01",
+      "endDate": "2025-05-16",
+      "event": "2025-05月 名偵探柯南第二彈",
+      "source": "https://www.monster-strike.com.tw/news/20250426_cn.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-05-01",
+      "event": "2025-05月 翻牌",
+      "tag": "free"
+    },
+    {
+      "date": "2025-04-13",
+      "endDate": "2025-04-30",
+      "event": "2025-04月 2.5次元的誘惑理理沙",
+      "source": "https://www.monster-strike.com.tw/news/20250410_nl.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-03-15",
+      "endDate": "2025-04-02",
+      "event": "2025-03月 Code Geass 反叛的魯路修",
+      "tag": "collab"
+    },
+    {
+      "aliases": [
+        "2024-03月 香港・澳門10周年紀念 彈珠好手精選角色"
+      ],
+      "date": "2025-03-12",
+      "event": "2025-03月 香港・澳門10周年紀念 彈珠好手精選角色",
+      "tag": "honke"
+    },
+    {
+      "aliases": [
+        "2024-03月 可用特玉抽！全明星大集合感謝轉蛋"
+      ],
+      "date": "2025-03-10",
+      "event": "2025-03月 可用特玉抽！全明星大集合感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2025-02-15",
+      "endDate": "2025-03-02",
+      "event": "2025-02月 關於我轉生變成史萊姆這檔事 第二彈",
+      "source": "https://www.monster-strike.com.tw/news/20250213_ts.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-02-08",
+      "event": "2025-02月 可和好友一起抽，2人同樂♪ 選擇轉蛋",
+      "tag": "free"
+    },
+    {
+      "aliases": [
+        "2024-02月 保證6星轉蛋 (伏羲極運)"
+      ],
+      "date": "2025-02-01",
+      "event": "2025-02月 保證6星轉蛋 (伏羲極運)",
+      "tag": "free"
+    },
+    {
+      "date": "2025-01-11",
+      "endDate": "2025-02-02",
+      "event": "2025-01月 JOJO的奇妙冒險 第三彈",
+      "source": "https://www.monster-strike.com.tw/news/20250109_jj.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2025-01-01",
+      "endDate": "2025-01-07",
+      "event": "2025-01月 新年特別版「超獸神祭」 (艾兒)",
+      "source": "https://www.monster-strike.com.tw/news/20241229_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-12-29",
+      "event": "2024-12月 保證1體！α轉蛋",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-12-18",
+      "event": "2024-12月 蒸蒸日上轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-12-13",
+      "endDate": "2025-01-02",
+      "event": "2024-12月 科學超電磁砲",
+      "source": "https://www.monster-strike.com.tw/news/20241212_rg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-12-02",
+      "event": "2024-12月 怪物彈珠聖誕節2024",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-11-15",
+      "event": "2024-11月 登入好禮BIG",
+      "tag": "free"
+    },
+    {
+      "date": "2024-11-15",
+      "endDate": "2024-12-02",
+      "event": "2024-11月 夜櫻家大作戰",
+      "source": "https://www.monster-strike.com.tw/news/20241121_ys.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-11-13",
+      "event": "2024-11月 免費屬性池",
+      "tag": "free"
+    },
+    {
+      "date": "2024-11-12",
+      "endDate": "2024-11-15",
+      "event": "2024-11月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20241111_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-11-09",
+      "event": "2024-11月 從哪個開始抽？保證多多5屬性轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-10-26",
+      "endDate": "2024-11-05",
+      "event": "2024-10月 超獸神祭×五等分的新娘",
+      "source": "https://www.monster-strike.com.tw/news/20241024_5y.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-10-19",
+      "event": "2024-10月 選拔！11週年人氣投票轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-10-04",
+      "event": "2024-10月 11週年轟絕感謝多人遊玩轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-10-01",
+      "endDate": "2024-10-16",
+      "event": "2024-10月 GUNDAM SERIES 第二彈",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-09-30",
+      "endDate": "2024-10-03",
+      "event": "2024-09月 怪物彈珠世代 2013＆2014＆2017 (烏列爾、諾斯特拉達姆斯)",
+      "source": "https://www.monster-strike.com.tw/news/20240929_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-09-21",
+      "endDate": "2024-10-02",
+      "event": "2024-09月 超獸神祭 (久遠)",
+      "source": "https://www.monster-strike.com.tw/news/20240920_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-09-14",
+      "endDate": "2024-09-30",
+      "event": "2024-09月 香格里拉・開拓異境",
+      "source": "https://www.monster-strike.com.tw/news/20240912_sl.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-09-11",
+      "endDate": "2024-09-14",
+      "event": "2024-09月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20240910_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-08-31",
+      "event": "2024-08月 保證★6！重播轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-08-16",
+      "endDate": "2024-08-31",
+      "event": "2024-08月 怪物彈珠暑假 × 魔法少女☆小圓-α-",
+      "source": "https://www.monster-strike.com.tw/news/20240815_ma.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-07-26",
+      "event": "2024-07月 選擇方案最多100連！AGAIN轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-07-20",
+      "endDate": "2024-07-24",
+      "event": "2024-07月 怪物彈珠世代 2018 (瑪娜)",
+      "source": "https://www.monster-strike.com.tw/news/20240719_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-07-15",
+      "endDate": "2024-08-02",
+      "event": "2024-07月 【我推的孩子】",
+      "source": "https://www.monster-strike.com.tw/news/20240714_hk.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-07-13",
+      "event": "2024-07月 日日耕耘轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-07-13",
+      "endDate": "2024-07-14",
+      "event": "2024-07月 水祭 Zero Gravity LIVE!! (告別重力)",
+      "source": "https://www.monster-strike.com.tw/news/20240712_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-06-21",
+      "event": "2024-06月 可以抽3次！限限限定提升轉蛋",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-06-14",
+      "endDate": "2024-07-02",
+      "event": "2024-06月 怪獸８號",
+      "source": "https://www.monster-strike.com.tw/news/20240613_ei.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-06-11",
+      "endDate": "2024-06-14",
+      "event": "2024-06月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20240610_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-06-10",
+      "event": "2024-06月 全明星大集合感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-06-02",
+      "endDate": "2024-06-14",
+      "event": "2024-06月 祝宴！怪物彈珠新娘 4",
+      "source": "https://www.monster-strike.com.tw/news/20240601_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-05-30",
+      "endDate": "2024-06-02",
+      "event": "2024-05月 超獸神祭 (奈特梅雅)",
+      "source": "https://www.monster-strike.com.tw/news/20240529_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-05-21",
+      "event": "2024-05月 10th ANNIVERSARY感謝轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-05-13",
+      "event": "2024-05月 從哪個開始抽？保證多多5屬性轉蛋 (光祭 STARLIGHT MIRAGE)",
+      "tag": "free"
+    },
+    {
+      "date": "2024-05-13",
+      "event": "2024-05月 10週年！寶珠滿滿紀念冒險！",
+      "tag": "orb"
+    },
+    {
+      "date": "2024-05-13",
+      "event": "2024-05月 期間限定！繁體中文版怪物彈珠10週年紀念禮包",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-05-12",
+      "endDate": "2024-05-15",
+      "event": "2024-05月 真英雄祭",
+      "source": "https://www.monster-strike.com.tw/news/20240512_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-05-06",
+      "event": "2024-05月 蒸蒸日上轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-05-01",
+      "endDate": "2024-05-17",
+      "event": "2024-05月 東京喰種",
+      "source": "https://www.monster-strike.com.tw/news/20240427_tk.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-05-01",
+      "event": "2024-05月 翻牌",
+      "tag": "free"
+    },
+    {
+      "date": "2024-04-21",
+      "endDate": "2024-04-23",
+      "event": "2024-04月 暗祭 MIDNIGHT PARTY",
+      "source": "https://www.monster-strike.com.tw/news/20240422_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-04-13",
+      "endDate": "2024-05-02",
+      "event": "2024-04月 青春Strike！私立怪物彈珠學院4",
+      "source": "https://www.monster-strike.com.tw/news/20240412_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-04-10",
+      "endDate": "2024-04-12",
+      "event": "2024-04月 木季 綠色幻想",
+      "source": "https://www.monster-strike.com.tw/news/20240409_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-04-06",
+      "endDate": "2024-04-13",
+      "event": "2024-04月 激獸神祭×葬送的芙莉蓮",
+      "source": "https://www.monster-strike.com.tw/news/20240404_sf.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-04-01",
+      "event": "2024-04月 每日保留轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-04-01",
+      "event": "2024-04月 愚人節塔斯",
+      "tag": "free"
+    },
+    {
+      "date": "2024-04-01",
+      "event": "天魔的孤城 〜試煉之間〜 1000層必限定",
+      "tag": "free"
+    },
+    {
+      "date": "2024-03-18",
+      "event": "天魔的孤城 〜試煉之間〜 500層必限定",
+      "tag": "free"
+    },
+    {
+      "date": "2024-03-15",
+      "endDate": "2024-04-02",
+      "event": "2024-03月 炎炎消防隊",
+      "source": "https://www.monster-strike.com.tw/news/20240314_es.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-03-08",
+      "endDate": "2024-03-11",
+      "event": "2024-03月 激獸神祭 (逆鱗)",
+      "source": "https://www.monster-strike.com.tw/news/20240307_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2024-03-01",
+      "event": "2024-03月 每日保留轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-02-16",
+      "endDate": "2024-03-02",
+      "event": "2024-02月 機動戰士GUNDAM SEED FREEDOM",
+      "source": "https://www.monster-strike.com.tw/news/20240215_gs.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-02-11",
+      "event": "2024-02月 可和好友一起抽，2人同樂♪ 選擇轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2024-01-16",
+      "endDate": "2024-02-02",
+      "event": "2024-01月 咒術迴戰 & STARLIGHT MIRAGE×劇場版 咒術迴戰 0",
+      "source": "https://www.monster-strike.com.tw/news/20240111_jj.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2024-01-01",
+      "endDate": "2024-01-07",
+      "event": "2024-01月 新年特別版「超獸神祭」 (正宗)",
+      "source": "https://www.monster-strike.com.tw/news/20231230_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-12-22",
+      "endDate": "2023-12-23",
+      "event": "2023-12月 暗祭 MIDNIGHT PARTY (水戶光圀)",
+      "source": "https://www.monster-strike.com.tw/news/20231221_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-12-15",
+      "endDate": "2024-01-02",
+      "event": "2023-12月 SPY×FAMILY -α-",
+      "source": "https://www.monster-strike.com.tw/news/20231214_sf.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-12-08",
+      "endDate": "2023-12-11",
+      "event": "2023-12月 激獸神祭 (辛基爾提)",
+      "source": "https://www.monster-strike.com.tw/news/20231207_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-12-03",
+      "endDate": "2023-12-06",
+      "event": "2023-12月 復刻！怪物彈珠聖誕節 2021",
+      "source": "https://www.monster-strike.com.tw/news/20231202_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-11-17",
+      "endDate": "2023-12-02",
+      "event": "2023-11月 我想成為影之強者！",
+      "source": "https://www.monster-strike.com.tw/news/20231116_kg.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-11-09",
+      "event": "2023-11月 重播轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2023-11-07",
+      "endDate": "2023-11-09",
+      "event": "2023-11月 火祭 火焰之星",
+      "source": "https://www.monster-strike.com.tw/news/20231106_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-10-30",
+      "endDate": "2023-11-03",
+      "event": "2023-10月 超獸神祭 (魔奇亞)",
+      "source": "https://www.monster-strike.com.tw/news/20231029_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-10-21",
+      "event": "2023-10月 10年1度！My Best 1轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2023-10-15",
+      "endDate": "2023-11-02",
+      "event": "2023-10月 JOJO的奇妙冒險 第二彈",
+      "source": "https://www.monster-strike.com.tw/news/20231012_jj.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-10-13",
+      "event": "2023-10月 點擊來抽200連！龍頭轉蛋連打",
+      "source": "https://www.monster-strike.com.tw/news/20231012_an.html",
+      "tag": "free"
+    },
+    {
+      "date": "2023-10-06",
+      "event": "2023-10月 10週年轟絕感謝多人遊玩轉蛋",
+      "tag": "free"
+    },
+    {
+      "date": "2023-10-06",
+      "event": "2023-10月 週年2016世代池",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-10-01",
+      "endDate": "2023-10-15",
+      "event": "2023-10月 東京復仇者",
+      "source": "https://www.monster-strike.com.tw/news/20230930_rv.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-09-23",
+      "event": "2023-09月 登入好禮 BIG3",
+      "tag": "free"
+    },
+    {
+      "date": "2023-09-23",
+      "endDate": "2023-09-25",
+      "event": "2023-09月 木祭 綠色幻想 (新島八重)",
+      "source": "https://www.monster-strike.com.tw/news/20230922_02.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-09-17",
+      "event": "2023-09月 10年1度！MY BEST 10",
+      "tag": "free"
+    },
+    {
+      "date": "2023-09-16",
+      "endDate": "2023-09-29",
+      "event": "2023-09月 怪物彈珠暑假×刀劍神域-α-",
+      "source": "https://www.monster-strike.com.tw/news/20230914_sa.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-09-13",
+      "endDate": "2023-09-16",
+      "event": "2023-09月 激獸神祭",
+      "source": "https://www.monster-strike.com.tw/news/20230908_01.html",
+      "tag": "honke"
+    },
+    {
+      "date": "2023-09-01",
+      "endDate": "2023-09-16",
+      "event": "2023-09月 王者天下",
+      "source": "https://www.monster-strike.com.tw/news/20230831_kd.html",
+      "tag": "collab"
+    },
+    {
+      "date": "2023-08-26",
+      "event": "2023-08月 三位一體",
+      "tag": "free"
+    }
+  ],
+  "updatedAt": {
+    "__timestamp__": "2026-11-23T14:12:44.488Z"
+  }
+}
