@@ -30,7 +30,11 @@ function applyPools({ pools, roster, overrides, items, flags }) {
         global: { ...fromRoster.global, ...((overrides && overrides.global) || {}) },
         pools: { ...fromRoster.pools, ...((overrides && overrides.pools) || {}) }
     };
-    const result = planPoolChanges(R.poolsToNames(pools, roster), items, all);
+    const orphanFlags = [];
+    const named = R.poolsToNames(pools, roster, (o) => orphanFlags.push({ event: o.pool, source: '',
+        message: `卡池用到名冊沒有的編號 ${o.id}（可能在這個 PR 開著時被合併了），改用原本的名稱「${o.name}」對回名冊；如果下面出現同名的新角色，請改成併進去的那隻` }));
+    const result = planPoolChanges(named, items, all);
+    result.flags.push(...orphanFlags);
     const merged = mergeElements(R.rosterElements(roster), items, result.data, all);
     const withElements = R.applyElements(roster, merged.elements);
     const converted = R.poolsToIds(result.data, withElements.data);

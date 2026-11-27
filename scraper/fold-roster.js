@@ -53,6 +53,12 @@ async function main() {
     const newRoster = R.formatRoster(out.data);
     const newPools = formatPoolsJson(out.pools);
     console.log(`名冊：寫回 ${out.changed} 項修改${out.skipped ? `，${out.skipped} 隻新角色等卡池 PR 處理完再編號` : ''}`);
+    // 卡池裡名冊沒有的編號：已自動處理，用 ::warning:: 標在 Actions 的執行結果，請管理員確認
+    for (const o of out.orphans) {
+        const where = `「${o.pool}」${o.month || ''}`;
+        const who = `${o.id}${o.name ? `「${o.name}」` : ''}`;
+        console.log(`::warning::${where}用到名冊沒有的編號 ${who}，` + (o.into ? `已換成 ${o.into}（名冊裡有這個名稱）` : '已從卡池拿掉，需要的話請在角色頁把正確的角色加回這期卡池'));
+    }
     if (dryRun) return;
     if (newRoster !== rosterText) fs.writeFileSync(ROSTER_FILE, newRoster);
     if (newPools !== poolsText) fs.writeFileSync(POOLS_FILE, newPools);

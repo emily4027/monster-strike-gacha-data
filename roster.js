@@ -111,8 +111,10 @@
         return { data: { ...data, characters: [...listOf(data), character] }, character };
     }
 
-    // pools.json (chars 是編號) → 爬蟲用的格式 (chars 是名稱)。名冊沒有的編號會丟出錯誤
-    function poolsToNames(poolsData, data) {
+    // pools.json (chars 是編號) → 爬蟲用的格式 (chars 是名稱)
+    //   名冊沒有的編號 (例如卡池 PR 開著時 main 合併了角色)：改用 pools.json 的 names 記的原本名稱 (名冊裡變成別名的話之後會對回那隻)，
+    //   並呼叫 onOrphan({ pool, id, name })；names 也沒有這個編號才丟出錯誤
+    function poolsToNames(poolsData, data, onOrphan) {
         const { byId } = indexRoster(data);
         const { names, ...rest } = poolsData || {};
         return {
@@ -121,8 +123,10 @@
                 ...p,
                 chars: (p.chars || []).map((c) => {
                     if (!ID_RE.test(c)) return c;   // 舊格式：直接寫名稱
-                    if (!byId.has(c)) throw new Error(`pools.json「${p.pool}」用到名冊沒有的編號 ${c}`);
-                    return byId.get(c).name;
+                    if (byId.has(c)) return byId.get(c).name;
+                    if (!names || !names[c]) throw new Error(`pools.json「${p.pool}」用到名冊沒有的編號 ${c}`);
+                    if (onOrphan) onOrphan({ pool: p.pool, id: c, name: names[c] });
+                    return names[c];
                 })
             }))
         };
@@ -149,7 +153,7 @@
                 }
                 used.set(c.id, c.name);
                 return c.id;
-            })
+            }).filter((id, i, list) => list.indexOf(id) === i)   // 兩個寫法對到同一隻 (例如合併後的別名) 只留一個
         }));
         const names = Object.fromEntries([...used.entries()].sort(([a], [b]) => a.localeCompare(b)));
         const { names: old, pools: oldPools, ...head } = namePools || {};
@@ -436,7 +440,8 @@
     // 爬蟲：把修改檔寫回 characters.json 和 pools.json (chars 是編號)
     //   還沒有編號的新角色在這裡編號；被合併的角色從名冊拿掉，卡池裡的編號換成併進去的那隻
     //   options.skipAdds：還沒有編號的新角色這次先不編號 (有開著的卡池 PR 時，免得兩邊撞號)
-    //   回傳 { data, pools, changed: 幾項修改, skipped: 先不編號的新角色數 }
+    //   回傳 { data, pools, changed: 幾項修改, skipped: 先不編號的新角色數,
+    //          orphans: [{ pool, month, id, name, into }] 卡池裡名冊沒有的編號 (into：換成的編號；null＝從卡池拿掉) }
     function foldEdits(data, poolsData, rawEdits, options = {}) {
         const edits = readEdits(rawEdits);
         const applied = applyEdits(data, edits).data;
@@ -458,28 +463,35 @@
         const problems = indexRoster(roster).problems;
         if (problems.length) throw new Error('套用管理員的修改後名冊有問題：\n' + problems.join('\n'));
 
-        const { byId } = indexRoster(roster);
+        const { byId, byKey: rosterByKey } = indexRoster(roster);
         const withPools = applyPoolEdits(poolsData, edits);
+        const oldNames = (poolsData && poolsData.names) || {};
+        // 名冊沒有的編號 (孤兒)：通常是卡池 PR 開著時 main 上合併了角色，PR 合併後 pools.json 還留著舊編號。
+        //   pools.json 的 names 記著它原本的名稱，名冊裡找得到這個名稱 (合併後變成別名或形態) 就換成那隻，找不到就從卡池拿掉
+        const orphans = [];
         const remapped = {
             ...withPools,
             pools: ((withPools && withPools.pools) || []).map((p) => {
                 const chars = [];
                 (p.chars || []).forEach((id) => {
-                    const to = ID_RE.test(id) ? mergeTarget(edits.merged, id) : id;
+                    let to = ID_RE.test(id) ? mergeTarget(edits.merged, id) : id;
+                    if (!byId.has(to)) {
+                        const owner = oldNames[to] && rosterByKey.get(poolKey(oldNames[to]));
+                        orphans.push({ pool: p.pool, month: p.month, id: to, name: oldNames[to] || '', into: owner ? owner.id : null });
+                        if (!owner) return;
+                        to = owner.id;
+                    }
                     if (!chars.includes(to)) chars.push(to);
                 });
                 return { ...p, chars };
             })
         };
         const names = {};
-        remapped.pools.forEach((p) => p.chars.forEach((id) => {
-            if (!byId.has(id)) throw new Error(`pools.json「${p.pool}」用到名冊沒有的編號 ${id}`);
-            names[id] = byId.get(id).name;
-        }));
+        remapped.pools.forEach((p) => p.chars.forEach((id) => { names[id] = byId.get(id).name; }));
         remapped.names = Object.fromEntries(Object.entries(names).sort(([a], [b]) => a.localeCompare(b)));
         const changed = Object.keys(edits.chars).length + Object.keys(edits.merged).length + added + edits.distinct.length
             + edits.pools.length + edits.unpools.length;
-        return { data: roster, pools: remapped, changed, skipped };
+        return { data: roster, pools: remapped, changed, skipped, orphans };
     }
 
     // 修改檔裡已經寫回 characters.json 的部分拿掉。data：已經 commit 的 characters.json

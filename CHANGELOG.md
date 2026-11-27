@@ -4,6 +4,13 @@
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)。
 版本號依 [語意化版本](https://semver.org/lang/zh-TW/)；每次發版打 tag `v<版本>`。
 
+## [1.0.1] - 2026-11-28
+
+### 修正 (Fixed)
+- 爬蟲 workflow 每次 push 前先 `git pull --rebase` 接上 main，執行中有人手動 push 不會整步失敗。
+- 卡池 PR 開著時 main 合併了角色，PR 合併後 `pools.json` 留著名冊沒有的編號，之後每天寫回名冊都失敗。現在寫回時用 `pools.json` 的 `names` 找回原本的名稱：名冊裡有（合併後變成別名或形態）就換成那隻，沒有就從卡池拿掉，並在 Actions 結果標出警告；卡池 PR 遇到同樣情況也照常產生，報告裡標出來。
+- 同一期卡池兩個寫法對到同一隻角色時，`pools.json` 不再重複列同一個編號。
+
 ## [1.0.0] - 2026-11-28
 
 由「活動行事曆」和「角色圖鑑」兩個測試版工具合併成「轉蛋資料庫」，作為抽卡統計的附屬工具。

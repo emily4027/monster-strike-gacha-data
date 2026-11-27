@@ -288,3 +288,35 @@ test('修改檔：改名稱時舊名稱自動留成別名', () => {
     e = R.applyOp(base, R.applyOp(base, null, { type: 'save', id: 'c0003', character: { name: '雷姆α' } }), { type: 'save', id: 'c0003', character: { name: '雷姆β', aliases: ['雷姆'] } });
     assert.deepEqual(e.chars.c0003.aliases, ['雷姆', '雷姆α']);
 });
+
+test('修改檔寫回檔案：卡池裡名冊沒有的編號 (卡池 PR 開著時 main 合併了角色) 不會讓整步失敗', () => {
+    // c0002 已在 main 併成 c0001 的形態並寫回 (名冊沒有 c0002、修改檔也清掉了)，PR 合併後 pools.json 還留著 c0002
+    const base = { characters: [{ id: 'c0001', name: '洛基', forms: [{ name: '終結九界者 洛基' }] }, { id: 'c0003', name: '雷姆' }] };
+    const pools = { pools: [
+        { pool: 'A', kind: 'limited', chars: ['c0002', 'c0003'] },
+        { pool: 'B', kind: 'limited', chars: ['c0001', 'c0002', 'c0009'] }
+    ], names: { c0001: '洛基', c0002: '終結九界者 洛基', c0003: '雷姆', c0009: '不見了' } };
+    const out = R.foldEdits(base, pools, null);
+    assert.deepEqual(out.pools.pools.map((p) => p.chars), [['c0001', 'c0003'], ['c0001']]);
+    assert.deepEqual(out.pools.names, { c0001: '洛基', c0003: '雷姆' });
+    assert.deepEqual(out.orphans, [
+        { pool: 'A', month: undefined, id: 'c0002', name: '終結九界者 洛基', into: 'c0001' },
+        { pool: 'B', month: undefined, id: 'c0002', name: '終結九界者 洛基', into: 'c0001' },
+        { pool: 'B', month: undefined, id: 'c0009', name: '不見了', into: null }
+    ]);
+    assert.deepEqual(R.foldEdits(base, { pools: [{ pool: 'A', chars: ['c0001'] }] }, null).orphans, []);
+    // 卡池 PR (poolsToNames)：改用 names 記的原本名稱並通知；names 也沒有才丟錯
+    const seen = [];
+    assert.deepEqual(R.poolsToNames(pools, base, (o) => seen.push(o.id)).pools[0].chars, ['終結九界者 洛基', '雷姆']);
+    assert.deepEqual(seen, ['c0002', 'c0002', 'c0009']);
+    assert.throws(() => R.poolsToNames({ pools: [{ pool: 'A', chars: ['c0002'] }] }, base), /c0002/);
+});
+
+test('卡池 PR：pools.json 有名冊沒有的編號時照常產生，並在報告標出來', () => {
+    const roster = { characters: [{ id: 'c0001', name: '洛基', aliases: ['終結九界者 洛基'] }] };
+    const pools = { pools: [{ pool: 'A', kind: 'limited', chars: ['c0001', 'c0002'] }], names: { c0001: '洛基', c0002: '終結九界者 洛基' } };
+    const out = applyPools({ pools, roster, overrides: {}, items: [] });
+    assert.deepEqual(JSON.parse(out.poolsText).pools[0].chars, ['c0001']);
+    assert.equal(out.added, 0);
+    assert.match(out.report, /名冊沒有的編號 c0002/);
+});

@@ -70,6 +70,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "備份：Firestore 共用資料 ($(TZ=Asia/Taipei date +%F))"
+          # 執行中有人手動 push 也不會失敗：先接上 main 最新的 commit 再推
+          git pull --rebase --autostash --quiet origin main
           git push
 
       - name: 抓取並新增活動
@@ -92,6 +94,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "爬蟲：更新活動清單紀錄 ($(TZ=Asia/Taipei date +%F))"
+          # 執行中有人手動 push 也不會失敗：先接上 main 最新的 commit 再推
+          git pull --rebase --autostash --quiet origin main
           git push
 
       # 管理員在角色頁編輯模式做的修改寫回檔案。有開著的卡池 PR 時，新角色先不編號 (免得和 PR 裡的新角色撞號)
@@ -112,6 +116,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "名冊：寫回管理員的修改 ($(TZ=Asia/Taipei date +%F))"
+          # 執行中有人手動 push 也不會失敗：先接上 main 最新的 commit 再推
+          git pull --rebase --autostash --quiet origin main
           git push
 
       - name: 卡池 PR
@@ -134,6 +140,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "爬蟲：更新讀過卡池的公告 ($(TZ=Asia/Taipei date +%F))"
+          # 執行中有人手動 push 也不會失敗：先接上 main 最新的 commit 再推
+          git pull --rebase --autostash --quiet origin main
           git push
 
   backfill:
