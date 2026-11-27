@@ -386,6 +386,24 @@ test('季節限定：獸神化後的名稱裡沒有獸神化前的名稱，依�
     assert.ok(r.flags.some((f) => f.message.includes('「機光院智世α」是依公告內文介紹新角色的順序') && f.message.includes('MDT 婚禮革新者・生存α')));
 });
 
+test('活動名稱對到好幾個限定卡池時，用名稱最完整的那個 (「新娘 5」不算成「新娘」)', () => {
+    const data = { pools: [
+        { pool: '祝宴！怪物彈珠新娘', kind: 'limited', months: ['2021-06'], chars: ['甲α'] },
+        { pool: '祝宴！怪物彈珠新娘 5', kind: 'limited', months: ['2026-06'], chars: ['乙α', '丙α'] }
+    ], names: {} };
+    const html = '<p>「乙α」、「丙α」</p><h4>新登場角色介紹！</h4><h5>★6 稱號 乙α（獸神化後）</h5><h5>★6 稱號 丙α（獸神化後）</h5>';
+    const r = X.planPoolChanges(data, [item('2025-06月 祝宴！怪物彈珠新娘 5', '2025-06-02', 'honke', html)]);
+    assert.equal(r.flags.filter((f) => /好幾個限定卡池/.test(f.message)).length, 0);
+    assert.deepEqual(r.changes.map((c) => [c.type, c.pool, c.month]), [['add-month', '祝宴！怪物彈珠新娘 5', '2025-06']]);
+    // 名稱沒有包含關係的還是標出來
+    const two = { pools: [
+        { pool: '超獸神祭', kind: 'limited', months: ['2025-01'], chars: ['甲'] },
+        { pool: '激獸神祭', kind: 'limited', months: ['2025-01'], chars: ['乙'] }
+    ], names: {} };
+    const r2 = X.planPoolChanges(two, [item('2025-01月 超獸神祭 激獸神祭', '2025-01-01', 'honke', html)]);
+    assert.ok(r2.flags.some((f) => /好幾個限定卡池/.test(f.message)));
+});
+
 test('季節限定：介紹的名稱串對不上時，照舊用最後一段當推測的名稱', () => {
     const heads = '<h4>新登場角色介紹！</h4><h5>★6 甲 乙α（獸神化後）</h5><h5>★6 丙 丁α（獸神化後）</h5>';
     // 剩下的數量不一樣

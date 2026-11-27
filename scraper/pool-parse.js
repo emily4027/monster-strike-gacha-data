@@ -825,8 +825,11 @@ function planHonke(poolsData, item, earlierFlags) {
     let poolNames = [...new Set(matchingPools(parsed, event.event).filter((p) => p.kind === 'limited').map((p) => p.pool))];
     if (poolNames.length > 1) {
         // 好幾個卡池都對到 (「怪物彈珠世代 2013＆2014＆2017」)：表頭寫的是哪個就用哪個，都不是時當成新的卡池
+        // 都不是時，名稱是別的卡池名稱一部分的拿掉 (「祝宴！怪物彈珠新娘 5」也對到「祝宴！怪物彈珠新娘」→ 用 5)
+        const specific = poolNames.filter((n) => !poolNames.some((o) => o !== n && poolKey(o).includes(poolKey(n))));
         if (byHeader && poolNames.includes(byHeader.pool)) poolNames = [byHeader.pool];
         else if (header && !byHeader) poolNames = [header];
+        else if (specific.length === 1) poolNames = specific;
         else {
             flag(`活動名稱對到好幾個限定卡池（${poolNames.join('、')}），需要手動處理`);
             return result(poolsData, null, flags);
