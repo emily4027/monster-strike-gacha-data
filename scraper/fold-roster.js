@@ -15,9 +15,12 @@ const fs = require('fs');
 const path = require('path');
 const R = require('../roster.js');
 const { formatPoolsJson } = require('./pool-parse.js');
+const { formatElements } = require('./apply-pools.js');
+const { poolKey } = require('../pools.js');
 
 const POOLS_FILE = path.join(__dirname, '..', 'pools.json');
 const ROSTER_FILE = path.join(__dirname, '..', 'characters.json');
+const ELEMENTS_FILE = path.join(__dirname, '..', 'elements.json');
 const readText = (file) => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -34,6 +37,9 @@ async function main() {
     const poolsText = readText(POOLS_FILE);
     const committed = JSON.parse(rosterText);
     const committedPools = JSON.parse(poolsText);
+    const elementsText = fs.existsSync(ELEMENTS_FILE) ? readText(ELEMENTS_FILE) : '';
+    const committedElements = elementsText ? JSON.parse(elementsText) : { elements: {} };
+    const table = committedElements.elements || {};
     const snap = await ref.get();
     if (!snap.exists) { console.log('名冊：沒有管理員的修改'); return; }
     const edits = R.readEdits(snap.data());
@@ -43,13 +49,17 @@ async function main() {
         await getFirestore().runTransaction(async (tx) => {
             const latest = await tx.get(ref);
             const now = R.readEdits(latest.exists ? latest.data() : null);
-            const pruned = R.pruneEdits(committed, now, committedPools);
+            const pruned = R.pruneEdits(committed, now, committedPools, table);
             if (!same(pruned, now)) tx.set(ref, { ...pruned, updatedAt: FieldValue.serverTimestamp() });
         });
     }
 
     // 2. 剩下的寫回檔案
-    const out = R.foldEdits(committed, committedPools, R.pruneEdits(committed, edits, committedPools), { skipAdds });
+    const out = R.foldEdits(committed, committedPools, R.pruneEdits(committed, edits, committedPools, table), { skipAdds });
+    // 管理員標成常駐的名稱寫進屬性表 (屬性不知道，空字串)
+    const nextTable = { ...table };
+    out.regulars.forEach((n) => { if (!Object.keys(nextTable).some((k) => poolKey(k) === poolKey(n))) nextTable[n] = ''; });
+    const newElements = formatElements({ ...committedElements, elements: nextTable });
     const newRoster = R.formatRoster(out.data);
     const newPools = formatPoolsJson(out.pools);
     console.log(`名冊：寫回 ${out.changed} 項修改${out.skipped ? `，${out.skipped} 隻新角色等卡池 PR 處理完再編號` : ''}`);
@@ -62,6 +72,7 @@ async function main() {
     if (dryRun) return;
     if (newRoster !== rosterText) fs.writeFileSync(ROSTER_FILE, newRoster);
     if (newPools !== poolsText) fs.writeFileSync(POOLS_FILE, newPools);
+    if (newElements !== elementsText) fs.writeFileSync(ELEMENTS_FILE, newElements);
 }
 
 main().catch((e) => {

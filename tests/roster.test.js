@@ -63,10 +63,14 @@ test('別名 → 爬蟲的名稱對應；屬性寫回名冊時不覆蓋已經有
         pools: { 'SPY×FAMILY 夏季造型': { '約兒・佛傑': '佛傑家的妻子 約兒・佛傑α' } }
     });
     assert.deepEqual(R.rosterElements(r), { '瑪娜': '光' });
-    const out = R.applyElements(r, { '瑪娜': '闇', '約兒・佛傑': '光', '全新': '火', '壞的': '風' });
+    const out = R.applyElements(r, { '瑪娜': '闇', '約兒・佛傑': '光', '全新': '火', '壞的': '風', '舊常駐': '木' }, { '舊 常駐': '', '別的': '水' });
     assert.equal(R.findCharacter(out.data, '瑪娜').element, '光');
     assert.equal(R.findCharacter(out.data, '約兒・佛傑').element, '光');
-    assert.deepEqual(out.added, [{ id: 'c0005', name: '全新' }]);
+    // 名冊沒有的名稱不編號，寫進屬性表 (已經在屬性表的補上屬性)
+    assert.deepEqual(out.added, []);
+    assert.equal(R.findCharacter(out.data, '全新'), null);
+    assert.deepEqual(out.table, { '舊 常駐': '木', '別的': '水', '全新': '火' });
+    assert.equal(out.others, 2);
     assert.equal(out.filled, 1);
     assert.equal(r.characters[2].element, undefined);
 });
@@ -123,7 +127,7 @@ test('修改檔：存檔、新增、合併、確認不同角色；套用後網�
     e = R.applyOp(base, e, { type: 'merge', from: 'c0002', into: 'c0001', as: 'form' });
     assert.deepEqual(e.chars.c0001, { id: 'c0001', name: '洛基', element: '闇', forms: [{ name: '終結九界者 洛基' }] });
     assert.deepEqual(e.merged, { c0002: 'c0001' });
-    e = R.applyOp(base, e, { type: 'add', character: { name: '一休', element: '光', kind: 'regular' } });
+    e = R.applyOp(base, e, { type: 'add', character: { name: '一休', element: '光', kind: 'collab' } });
     e = R.applyOp(base, e, { type: 'distinct', a: 'c0004', b: 'c0003' });
     assert.deepEqual(e.distinct, ['c0003|c0004']);
 
@@ -184,7 +188,7 @@ test('修改檔寫回檔案：新角色編號、被合併的編號在卡池裡�
     // 輸出 → 讀回來不變
     assert.deepEqual(JSON.parse(R.formatRoster(out.data)).distinct, [['c0003', 'c0004']]);
     // 寫回後，修改檔清空；再套一次不會變
-    assert.deepEqual(R.pruneEdits(out.data, e), { chars: {}, merged: {}, adds: [], distinct: [], pools: [], unpools: [] });
+    assert.deepEqual(R.pruneEdits(out.data, e), { chars: {}, merged: {}, adds: [], distinct: [], pools: [], unpools: [], regulars: [] });
     assert.equal(R.foldEdits(out.data, out.pools, R.pruneEdits(out.data, e)).changed, 0);
     // 還沒寫回的留著
     assert.deepEqual(Object.keys(R.pruneEdits(base, e).chars).sort(), ['c0001', 'c0003']);
@@ -319,4 +323,35 @@ test('卡池 PR：pools.json 有名冊沒有的編號時照常產生，並在報
     assert.deepEqual(JSON.parse(out.poolsText).pools[0].chars, ['c0001']);
     assert.equal(out.added, 0);
     assert.match(out.report, /名冊沒有的編號 c0002/);
+});
+
+test('名冊只放 ★6 限定、期間限定、合作：編號不重複使用、標成常駐的名稱寫進屬性表', () => {
+    // lastId：移出名冊的角色用過的編號不再使用
+    assert.equal(R.nextId({ lastId: 'c0918', characters: [{ id: 'c0003', name: 'a' }] }), 'c0919');
+    assert.equal(R.nextId({ characters: [{ id: 'c0003', name: 'a' }] }), 'c0004');
+    assert.match(R.formatRoster({ lastId: 'c0918', characters: [] }), /"lastId": "c0918",\n  "characters"/);
+    assert.throws(() => R.cleanCharacter({ name: 'x', kind: 'regular' }, false), /類別/);
+    // 標成常駐
+    const base = BASE();
+    let e = R.applyOp(base, null, { type: 'regular', name: ' 一休 ' });
+    e = R.applyOp(base, e, { type: 'regular', name: '一休' });
+    assert.deepEqual(e.regulars, ['一休']);
+    assert.throws(() => R.applyOp(base, e, { type: 'regular', name: '雷姆' }), /在名冊裡/);
+    const out = R.foldEdits(base, { pools: [] }, e);
+    assert.deepEqual(out.regulars, ['一休']);
+    assert.equal(out.changed, 1);
+    assert.deepEqual(R.pruneEdits(base, e, null, { '一 休': '' }).regulars, []);
+    assert.deepEqual(R.pruneEdits(base, e, null, {}).regulars, ['一休']);
+});
+
+test('卡池 PR：公告屬性欄的名冊以外角色寫進 elements.json，進了卡池的從屬性表拿掉', () => {
+    const roster = { lastId: 'c0009', characters: [{ id: 'c0001', name: '洛基' }] };
+    const pools = { pools: [{ pool: 'A', kind: 'limited', chars: ['c0001'] }], names: { c0001: '洛基' } };
+    const elements = { elements: { '一休': '闇', '新卡池角色': '火' } };
+    const items = [{ event: { event: '2026-12月 A', date: '2026-12-01', tag: 'honke', source: 's' },
+        data: { limited: [{ header: '「A」限定角色', poolName: 'A', names: ['洛基', '新卡池角色'] }], elements: {}, elementOf: { '常駐甲': '水', '洛基': '闇' }, elementOfLow: {}, collab: [] } }];
+    const out = applyPools({ pools, roster, elements, overrides: {}, items });
+    const r = JSON.parse(out.rosterText);
+    assert.deepEqual(r.characters.map((c) => [c.id, c.name, c.element]), [['c0001', '洛基', '闇'], ['c0010', '新卡池角色', '火']]);
+    assert.deepEqual(JSON.parse(out.elementsText).elements, { '一休': '闇', '常駐甲': '水' });
 });

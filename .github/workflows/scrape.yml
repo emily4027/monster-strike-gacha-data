@@ -108,7 +108,7 @@ jobs:
           PR="$(gh pr list --head pools-update --state open --json number --jq '.[0].number // empty')"
           node scraper/fold-roster.js ${PR:+--skip-adds}
           node --test tests/roster.test.js
-          git add characters.json pools.json
+          git add characters.json pools.json elements.json
           if git diff --staged --quiet; then
             echo "名冊沒有變動"
             exit 0

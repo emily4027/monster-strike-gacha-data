@@ -33,9 +33,10 @@
     const ID_RE = /^c\d{4,}$/;
     const ELEMENT_RE = /^[火水木光闇]$/;
     // 類別：由管理員指定。期間限定在卡池裡也套用 (祭典裡的特別造型標「期間限定：激獸神祭」)；其他只在角色不屬於任何卡池時才用
-    const KINDS = { limited: '限定', period: '期間限定', collab: '合作', regular: '常駐' };
+    // 名冊只放這三種 (★6)；常駐等其他角色在 elements.json
+    const KINDS = { limited: '限定', period: '期間限定', collab: '合作' };
     const FORMS = ['進化前', '進化', '神化', '獸神化', '獸神化・改', '真獸神化'];
-    const NOTE = '角色名冊。id：內部編號，編了就不改、不重複使用，pools.json 的 chars 寫的是這個編號。name：台版官網的寫法。no：轉蛋抽到的這個形態在遊戲裡的圖鑑編號。element：屬性 (火水木光闇)，網頁用來替名稱上色。kind：類別 (limited 限定 / period 期間限定 / collab 合作 / regular 常駐)。期間限定在卡池裡也套用 (祭典裡的特別造型)，其他只在角色不屬於任何卡池時才用。new：爬蟲新編的編號，管理員還沒確認。aliases：同一隻角色的其他寫法。poolAliases：只在那個卡池才算這隻角色的寫法 { 卡池名稱: [寫法] }。forms：各形態 [{ no: 遊戲的圖鑑編號, name: 名稱, form: 形態 }]。distinct：名稱只差一個字、確認是不同角色的兩隻。平常在角色頁的編輯模式修改 (爬蟲每天寫回這個檔案)；爬蟲讀到名冊沒有的名稱時會編新的編號，已經有的資料不會被爬蟲覆蓋。';
+    const NOTE = '角色名冊：只放 ★6 的限定、期間限定、合作 (轉蛋) 角色；常駐、★5、合作禮包等其他角色的屬性在 elements.json。id：內部編號，編了就不改、不重複使用 (lastId：用過的最大編號，移出名冊的角色編號也不再使用)，pools.json 的 chars 寫的是這個編號。name：台版官網的寫法。no：轉蛋抽到的這個形態在遊戲裡的圖鑑編號。element：屬性 (火水木光闇)，網頁用來替名稱上色。kind：類別 (limited 限定 / period 期間限定 / collab 合作)。期間限定在卡池裡也套用 (祭典裡的特別造型)，其他只在角色不屬於任何卡池時才用。new：爬蟲新編的編號，管理員還沒確認。aliases：同一隻角色的其他寫法。poolAliases：只在那個卡池才算這隻角色的寫法 { 卡池名稱: [寫法] }。forms：各形態 [{ no: 遊戲的圖鑑編號, name: 名稱, form: 形態 }]。distinct：名稱只差一個字、確認是不同角色的兩隻。平常在角色頁的編輯模式修改 (爬蟲每天寫回這個檔案)；爬蟲讀到卡池裡名冊沒有的名稱時會編新的編號，已經有的資料不會被爬蟲覆蓋。';
 
     const listOf = (data) => (data && Array.isArray(data.characters) ? data.characters : []);
     const clean = (s) => (typeof s === 'string' ? s.trim() : '');
@@ -96,8 +97,10 @@
         return null;
     }
 
+    // 新編號：名冊裡最大的編號和 lastId (移出名冊的角色用過的編號) 再往後一號，編過的編號不再使用
     function nextId(data) {
-        const max = listOf(data).reduce((m, c) => Math.max(m, ID_RE.test(c.id) ? Number(c.id.slice(1)) : 0), 0);
+        const last = data && ID_RE.test(data.lastId || '') ? Number(data.lastId.slice(1)) : 0;
+        const max = listOf(data).reduce((m, c) => Math.max(m, ID_RE.test(c.id) ? Number(c.id.slice(1)) : 0), last);
         return 'c' + String(max + 1).padStart(4, '0');
     }
 
@@ -180,26 +183,28 @@
         return Object.fromEntries(listOf(data).filter((c) => ELEMENT_RE.test(c.element || '')).map((c) => [c.name, c.element]));
     }
 
-    // 屬性表寫回名冊：名冊沒有的名稱編新的編號 (標 new)；已經有屬性的不覆蓋。回傳 { data, added: [{ id, name }], filled }
-    function applyElements(data, elements) {
+    // 公告讀到的屬性寫回：名冊有的角色補上屬性 (已經有的不覆蓋)；名冊沒有的 (常駐、★5、合作禮包…) 寫進屬性表，不編號。
+    //   名冊只放 ★6 的限定、期間限定、合作 (轉蛋) 角色，這些都會從卡池進來。
+    //   table：elements.json 的 elements ({ 名稱: 屬性 })。回傳 { data, table, added: [] (相容，永遠是空的), others: 寫進屬性表的數量, filled }
+    function applyElements(data, elements, table) {
         let roster = { ...data, characters: listOf(data).map((c) => ({ ...c })) };
         const { byKey } = indexRoster(roster);
-        const added = [];
+        const nextTable = { ...(table || {}) };
+        const tableKeys = new Map(Object.keys(nextTable).map((n) => [poolKey(n), n]));
         let filled = 0;
+        let others = 0;
         Object.entries(elements || {}).forEach(([name, element]) => {
             if (!ELEMENT_RE.test(element) || !poolKey(name)) return;
             const c = byKey.get(poolKey(name));
-            if (!c) {
-                const result = addCharacter(roster, name, element, { new: true });
-                roster = result.data;
-                byKey.set(poolKey(name), result.character);
-                added.push({ id: result.character.id, name: result.character.name });
-            } else if (!c.element) {
-                c.element = element;
-                filled += 1;
+            if (c) {
+                if (!c.element) { c.element = element; filled += 1; }
+                return;
             }
+            const known = tableKeys.get(poolKey(name));
+            if (known === undefined) { nextTable[clean(name)] = element; tableKeys.set(poolKey(name), clean(name)); others += 1; }
+            else if (!nextTable[known]) { nextTable[known] = element; others += 1; }
         });
-        return { data: roster, added, filled };
+        return { data: roster, table: nextTable, added: [], others, filled };
     }
 
     // characters.json 的寫法：一隻角色一行，依編號排序
@@ -212,7 +217,8 @@
         const chars = [...listOf(data)].sort((a, b) => String(a.id).localeCompare(String(b.id)));
         const distinct = data && Array.isArray(data.distinct) && data.distinct.length
             ? [`  "distinct": ${JSON.stringify(data.distinct)}`] : [];
-        return ['{', `  "說明": ${JSON.stringify((data && data['說明']) || NOTE)},`, '  "characters": [',
+        const lastId = data && ID_RE.test(data.lastId || '') ? [`  "lastId": ${JSON.stringify(data.lastId)},`] : [];
+        return ['{', `  "說明": ${JSON.stringify((data && data['說明']) || NOTE)},`, ...lastId, '  "characters": [',
             chars.map((c) => `    ${line(c)}`).join(',\n'), distinct.length ? '  ],' : '  ]', ...distinct, '}', ''].join('\n');
     }
 
@@ -228,7 +234,8 @@
             adds: Array.isArray(o.adds) ? o.adds.filter((c) => isObj(c) && clean(c.name)) : [],
             distinct: Array.isArray(o.distinct) ? o.distinct.filter((k) => typeof k === 'string' && /^c\d{4,}\|c\d{4,}$/.test(k)) : [],
             pools: Array.isArray(o.pools) ? o.pools.filter(isPoolEdit).map((p) => ({ id: p.id, pool: clean(p.pool), month: p.month, ...(cleanSource(p.source) ? { source: cleanSource(p.source) } : {}) })) : [],
-            unpools: Array.isArray(o.unpools) ? o.unpools.filter(isPoolEdit).map((p) => ({ id: p.id, pool: clean(p.pool), month: p.month })) : []
+            unpools: Array.isArray(o.unpools) ? o.unpools.filter(isPoolEdit).map((p) => ({ id: p.id, pool: clean(p.pool), month: p.month })) : [],
+            regulars: Array.isArray(o.regulars) ? [...new Set(o.regulars.map(clean).filter(Boolean))] : []
         };
     }
 
@@ -352,11 +359,12 @@
     //   { type: 'merge', from, fromName, into, as }：from (編號；還沒編號的角色給 fromName) 其實是 into 這隻，
     //        名稱併成 into 的別名 (as: 'alias') 或形態 (as: 'form')
     //   { type: 'distinct', a, b }：確認是不同角色 (不再提示)
+    //   { type: 'regular', name }：名冊沒有的名稱是常駐角色，寫進屬性表 (elements.json)
     // 不合理的修改會丟出錯誤，訊息可以直接顯示給使用者
     function applyOp(data, rawEdits, op) {
         const edits = readEdits(rawEdits);
         const next = { chars: { ...edits.chars }, merged: { ...edits.merged }, adds: [...edits.adds], distinct: [...edits.distinct],
-            pools: [...edits.pools], unpools: [...edits.unpools] };
+            pools: [...edits.pools], unpools: [...edits.unpools], regulars: [...edits.regulars] };
         const current = applyEdits(data, edits).data;
         const check = (candidate) => {
             const problems = indexRoster(applyEdits(data, candidate).data).problems;
@@ -408,6 +416,13 @@
                 next.adds = next.adds.filter((c) => poolKey(c.name) !== poolKey(source.name));
             }
             next.chars[op.into] = cleanCharacter({ ...merged, id: op.into }, false);
+        } else if (type === 'regular') {
+            // 抽卡紀錄裡、名冊沒有的名稱是常駐 (或 ★5 等) 角色：不放名冊，寫進屬性表 (elements.json)，不再提示
+            const name = clean(op.name);
+            if (!name) throw new Error('要填角色名稱');
+            if (findCharacter(current, name)) throw new Error(`「${name}」在名冊裡，名冊的角色要用「合併過去」或改類別`);
+            if (!next.regulars.some((n) => poolKey(n) === poolKey(name))) next.regulars.push(name);
+            return next;
         } else if (type === 'distinct') {
             if (!ID_RE.test(op.a || '') || !ID_RE.test(op.b || '') || op.a === op.b) throw new Error('要選兩隻有編號的角色');
             if (!next.distinct.includes(pairKey(op.a, op.b))) next.distinct.push(pairKey(op.a, op.b));
@@ -490,13 +505,16 @@
         remapped.pools.forEach((p) => p.chars.forEach((id) => { names[id] = byId.get(id).name; }));
         remapped.names = Object.fromEntries(Object.entries(names).sort(([a], [b]) => a.localeCompare(b)));
         const changed = Object.keys(edits.chars).length + Object.keys(edits.merged).length + added + edits.distinct.length
-            + edits.pools.length + edits.unpools.length;
-        return { data: roster, pools: remapped, changed, skipped, orphans };
+            + edits.pools.length + edits.unpools.length + edits.regulars.length;
+        // 管理員標成常駐的名稱：寫進屬性表 (fold-roster.js)；名冊裡已經有的不算
+        const regulars = edits.regulars.filter((n) => !findCharacter(roster, n));
+        return { data: roster, pools: remapped, changed, skipped, orphans, regulars };
     }
 
     // 修改檔裡已經寫回 characters.json 的部分拿掉。data：已經 commit 的 characters.json
     //   poolsData：已經 commit 的 pools.json (有給時，手動補的卡池也清掉已經寫回的部分)
-    function pruneEdits(data, rawEdits, poolsData) {
+    //   table：已經 commit 的 elements.json 的 elements (有給時，已經寫進屬性表的常駐名稱清掉)
+    function pruneEdits(data, rawEdits, poolsData, table) {
         const edits = readEdits(rawEdits);
         const { byId, byKey } = indexRoster(data);
         const have = new Set(((data && data.distinct) || []).map(([a, b]) => pairKey(a, b)));
@@ -509,7 +527,8 @@
             adds: edits.adds.filter((c) => !byKey.has(poolKey(c.name))),
             distinct: edits.distinct.filter((k) => !have.has(k)),
             pools: poolsData ? edits.pools.filter((p) => byId.has(p.id) && !inPool(p)) : edits.pools,
-            unpools: poolsData ? edits.unpools.filter((p) => byId.has(p.id) && inPool(p)) : edits.unpools
+            unpools: poolsData ? edits.unpools.filter((p) => byId.has(p.id) && inPool(p)) : edits.unpools,
+            regulars: table ? edits.regulars.filter((n) => !Object.keys(table).some((k) => poolKey(k) === poolKey(n))) : edits.regulars
         };
     }
 
@@ -544,7 +563,7 @@
             const key = poolKey(name);
             if (!key || seen.has(key) || byKey.has(key)) return;
             seen.add(key);
-            rows.push({ character: { id: '', name: clean(name), missing: true }, issues: [{ type: 'missing', text: '抽卡紀錄裡有這個名稱，名冊沒有（可能是打錯字或漏收）' }] });
+            rows.push({ character: { id: '', name: clean(name), missing: true }, issues: [{ type: 'missing', text: '抽卡紀錄裡有這個名稱，名冊和屬性表都沒有（★6 限定／期間限定／合作就加進名冊；常駐、★5、合作禮包就標成常駐；打錯字用名稱修正）' }] });
         });
         const rank = (r) => {
             const ranks = r.issues.map((i) => ISSUE_ORDER.indexOf(i.type)).filter((i) => i >= 0);

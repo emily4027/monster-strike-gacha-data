@@ -59,7 +59,7 @@ if git diff --quiet -- pools.json && [ -z "$(git status --porcelain -- character
   exit 0
 fi
 
-git add pools.json characters.json
+git add pools.json characters.json elements.json
 git commit -m "卡池：依官網公告更新 ($TODAY)"
 git push --force origin "$BRANCH"   # 分支只有爬蟲在用
 

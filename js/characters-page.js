@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let elementClass = () => '';   // 角色名稱 → 屬性的 CSS class
     let isAdmin = false;
     let roster = null;        // 角色名冊 (characters.json 套上管理員的修改)：{ base, edits, data, names }
+    let elementTable = {};    // 名冊以外的角色 (elements.json)：抽卡紀錄裡的這些名稱不算「名冊沒有」
     let editMode = false;     // 管理員的編輯模式：清單換成整份名冊
     let rosterSimilar = null; // 名冊裡只差一個字的名稱 (名冊變動時重算)
     let openName = '';        // 存檔後重新渲染時，維持展開這個角色
@@ -429,6 +430,13 @@ document.addEventListener('DOMContentLoaded', () => {
         render();
     }
 
+    // 名冊以外的角色：屬性表 (elements.json) 有的，或管理員剛標成常駐、還沒寫回的
+    function isOutsideRoster(name) {
+        const key = poolKey(name);
+        if (Object.keys(elementTable).some((n) => poolKey(n) === key)) return true;
+        return Roster.readEdits(roster && roster.edits).regulars.some((n) => poolKey(n) === key);
+    }
+
     function setRoster(next) {
         roster = next;
         rosterSimilar = null;
@@ -474,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = Roster.rosterIssues(data, {
             inPool: (n) => inPoolKeys.has(poolKey(n)),
             similarOf: rosterSimilar,
-            recordNames: buildCatalog(records, { rename: fixedName }).map((e) => e.name)
+            recordNames: buildCatalog(records, { rename: fixedName }).map((e) => e.name).filter((n) => !isOutsideRoster(n))
         });
         const filter = els.issueFilter.value;
         const isIssue = (r) => r.issues.some((i) => i.type !== 'pending');
@@ -593,6 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const save = el('button', 'btn btn-sm btn-accent', saveText);
         save.type = 'submit';
         actions.appendChild(save);
+        // 名冊只放 ★6 的限定、期間限定、合作：常駐、★5、合作禮包等標成常駐，寫進屬性表，不再提示
+        if (c.missing) actions.appendChild(smallButton('是常駐等其他角色（不放名冊）', 'btn-outline-secondary',
+            () => saveRosterOp({ type: 'regular', name: c.name }, '', error)));
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             error.textContent = '';
@@ -741,6 +752,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     S.loadElementClasses().then((fn) => {
         elementClass = fn;
+        render();
+    });
+    // 瀏覽器還留著舊版 common.js 時 (剛更新的幾分鐘) 沒有這個函式：當成屬性表是空的
+    (S.loadElementTable ? S.loadElementTable() : Promise.resolve({})).then((t) => {
+        elementTable = t;
         render();
     });
     S.loadRoster().then((r) => {

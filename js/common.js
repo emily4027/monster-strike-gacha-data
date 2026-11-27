@@ -27,6 +27,7 @@
     const NAME_FIXES_DOC = PATHS.sharedCharacters;          // 名稱修正 (所有人可讀、管理員可寫)
     const GACHA_LOCAL_KEY = 'gachaRecords';                 // 抽卡統計的本機紀錄 (同網域共用)
     const POOLS_URL = 'pools.json';
+    const ELEMENTS_URL = 'elements.json';                   // 名冊以外的角色 (常駐、★5、合作禮包…) 的屬性：名稱上色、認得抽卡紀錄的名稱
     const ROSTER_URL = 'characters.json';                   // 角色名冊 (名稱、別名、各形態 → 屬性，名稱上色用)
     const ELEMENT_CLASS = { '火': 'el-fire', '水': 'el-water', '木': 'el-wood', '光': 'el-light', '闇': 'el-dark' };
 
@@ -179,11 +180,27 @@
 
     // 屬性表 → 查詢函式：角色名稱 → CSS class (el-fire…)，不知道屬性時回傳空字串 (照一般顏色顯示)
     //   比對時忽略空白、間隔號、全形半形 (和卡池相同)
+    // 屬性表 elements.json → { 名稱: 屬性 (不知道時是空字串) }；讀不到時是空的 (只是不上色)
+    let elementTablePromise = null;
+    function loadElementTable() {
+        if (!elementTablePromise) {
+            elementTablePromise = fetchJson(ELEMENTS_URL)
+                .then((d) => (d && d.elements && typeof d.elements === 'object' ? d.elements : {}))
+                .catch((e) => { console.warn('[DATA] 讀不到 elements.json', e); return {}; });
+        }
+        return elementTablePromise;
+    }
+
     async function loadElementClasses() {
         const { poolKey } = root.CharacterPools;
         try {
+            const table = await loadElementTable();
             const { data } = await loadRoster();
             const map = new Map();
+            Object.entries(table).forEach(([name, element]) => {
+                const cls = ELEMENT_CLASS[element];
+                if (cls && poolKey(name)) map.set(poolKey(name), cls);
+            });
             ((data && data.characters) || []).forEach((c) => {
                 const cls = ELEMENT_CLASS[c && c.element];
                 if (!cls) return;
@@ -317,7 +334,7 @@
     root.Shared = {
         GACHA_LOCAL_KEY, THIS_TOOL,
         el, storage, waitForFirebase,
-        loadEvents, readLocalRecords, readCloudRecords, loadPools, loadRoster, saveRosterOp, loadElementClasses, loadNameFixes, saveNameFix, saveEventEdit, checkAdmin, poolsForEventCount,
+        loadEvents, readLocalRecords, readCloudRecords, loadPools, loadRoster, saveRosterOp, loadElementClasses, loadElementTable, loadNameFixes, saveNameFix, saveEventEdit, checkAdmin, poolsForEventCount,
         setStatus, initAuth, loadToolboxMenu
     };
 })(this);
