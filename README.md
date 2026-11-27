@@ -1,5 +1,7 @@
 # 🗂️ 怪物彈珠 - 轉蛋資料庫 (Monster Strike Gacha Data)
 
+> 終極目標與方向：見[工具箱 VISION.md](https://github.com/emily4027/monster-strike-toolbox/blob/main/VISION.md)。
+
 [抽卡統計](https://github.com/emily4027/monster-strike-gacha)的附屬工具：維護抽卡統計用的**活動清單**和**卡池**資料，並用月曆和角色總覽檢視自己的抽卡紀錄。
 
 👉 網址：https://emily4027.github.io/monster-strike-gacha-data/
