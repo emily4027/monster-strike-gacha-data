@@ -266,9 +266,45 @@ function parseHeadingLists(html) {
         if (!m) continue;
         const base = baseName(m[1], quoted);
         current.names.push(base.name);
+        current.evolved = [...(current.evolved || []), { full: m[1], verified: base.verified }];
         if (!base.verified) current.guessed.push(base.name);
     }
-    return lists.filter((l) => l.names.length > 0);
+    const runs = quotedRuns(text);
+    return lists.filter((l) => l.names.length > 0).map((l) => {
+        const { evolved, ...rest } = l;
+        return l.guessed.length ? matchByIntroOrder(rest, evolved, runs) : rest;
+    });
+}
+
+// 內文裡一串並列的「」名稱：「三位新登場的角色「三途α」、「物干竿α」跟「機光院智世α」」→ [三途α, 物干竿α, 機光院智世α]
+function quotedRuns(text) {
+    const runs = [];
+    for (const m of String(text).matchAll(/「[^「」]+」(?:\s*(?:、|，|,|跟|和|與|及|以及)\s*「[^「」]+」)+/g)) {
+        runs.push([...m[0].matchAll(/「([^「」]+)」/g)].map((x) => x[1].trim()));
+    }
+    return runs;
+}
+
+// 獸神化後的名稱裡沒有獸神化前的名稱 (「MDT 婚禮革新者・生存α」其實是「機光院智世α」)：
+// 用內文介紹新角色的那一串名稱，扣掉已經對到的，剩下的依順序對應推測的那幾個。
+// 只有剛好一串對得上 (剩下的數量和推測的一樣，有對到的名稱時那串也要包含它) 才用，結果記在 ordered 讓管理員確認
+function matchByIntroOrder(list, evolved, runs) {
+    const verified = list.names.filter((_, i) => evolved[i].verified).map(poolKey);
+    const unknown = evolved.map((e, i) => (e.verified ? -1 : i)).filter((i) => i >= 0);
+    const fits = runs.map((run) => {
+        const keys = run.map(poolKey);
+        if (verified.length && !verified.some((k) => keys.includes(k))) return null;
+        const rest = run.filter((n) => !verified.includes(poolKey(n)));
+        return rest.length === unknown.length ? rest : null;
+    }).filter(Boolean);
+    const unique = [...new Map(fits.map((r) => [r.map(poolKey).join('|'), r])).values()];
+    if (unique.length !== 1) return list;
+    const names = [...list.names];
+    const ordered = unknown.map((i, k) => {
+        names[i] = unique[0][k];
+        return { name: unique[0][k], from: evolved[i].full };
+    });
+    return { ...list, names, guessed: [], ordered };
 }
 
 // 獸神化後的名稱 (「稱號 名稱」「名稱：造型」) → 獸神化前的名稱
@@ -757,6 +793,7 @@ function planHonke(poolsData, item, earlierFlags) {
     }
     // 小標題的名單：內文沒有引用到的名稱是推測的，標出來
     data.limited.forEach((l) => (l.guessed || []).forEach((n) => flag(`「${n}」是從小標題「${l.header}」下面的獸神化後名稱推測的獸神化前名稱（公告內文沒有寫），請確認`)));
+    data.limited.forEach((l) => (l.ordered || []).forEach((o) => flag(`「${o.name}」是依公告內文介紹新角色的順序，對應到小標題「${o.from}」的獸神化前名稱（獸神化後的名稱裡沒有它），請確認`)));
     // 一篇公告同時開好幾個卡池 (「怪物彈珠世代」：2019、2018… 各有一張「「X」限定角色」表)：
     // 每個卡池各自一個版本，畫面上分開顯示。沒寫卡池名稱的表 (轉出對象期間限定角色) 歸到第一個卡池
     const groups = [];
@@ -801,7 +838,9 @@ function planHonke(poolsData, item, earlierFlags) {
         poolNames = [byHeader ? byHeader.pool : (header || event.event.replace(/^\d{4}-\d{2}月\s*/, ''))];
         if (byHeader && !event.unlogged) exact = event.event.replace(/^\d{4}-\d{1,2}月\s*/, '').trim();
     }
-    return planLimitedList(poolsData, event, poolNames[0], data.limited.flatMap((l) => l.names), exact);
+    // 前面標出來的 (推測的名稱等) 也要帶著，不然會被這裡的結果蓋掉
+    const r = planLimitedList(poolsData, event, poolNames[0], data.limited.flatMap((l) => l.names), exact);
+    return { ...r, flags: [...flags, ...r.flags] };
 }
 
 // 一期活動 → 卡池的變動 { data, changes, flags }

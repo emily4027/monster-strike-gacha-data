@@ -370,6 +370,35 @@ test('季節限定：小標題的獸神化後名稱 → 獸神化前的名稱 (�
     assert.equal(X.extractPoolData(FESTIVAL + SEASONAL).limited.every((l) => !l.fromHeadings), true);
 });
 
+test('季節限定：獸神化後的名稱裡沒有獸神化前的名稱，依內文介紹的順序對應 (新娘 5 的機光院智世α)', () => {
+    const html = '<p>三位新登場的角色「三途α」、「物干竿α」跟「機光院智世α」身穿華麗禮服艷壓全場！</p>'
+        + '<h4>新登場角色介紹！</h4>'
+        + '<h5>★6 幻想的彼岸新娘 三途α<br>（獸神化後）</h5>'
+        + '<h5>★6 守護新娘的婚儀大太刀 物干竿α<br>（獸神化後）</h5>'
+        + '<h5>★6 MDT 婚禮革新者・生存α<br>（獸神化後）</h5>';
+    const [l] = X.parseHeadingLists(html);
+    assert.deepEqual(l.names, ['三途α', '物干竿α', '機光院智世α']);
+    assert.deepEqual(l.guessed, []);
+    assert.deepEqual(l.ordered, [{ name: '機光院智世α', from: 'MDT 婚禮革新者・生存α' }]);
+    // 報告裡標出來請管理員確認
+    const r = X.planPoolChanges(POOLS(), [item('2025-06月 祝宴！怪物彈珠新娘 5', '2025-06-02', 'honke', html)]);
+    assert.deepEqual(r.changes.map((c) => c.chars), [['三途α', '物干竿α', '機光院智世α']]);
+    assert.ok(r.flags.some((f) => f.message.includes('「機光院智世α」是依公告內文介紹新角色的順序') && f.message.includes('MDT 婚禮革新者・生存α')));
+});
+
+test('季節限定：介紹的名稱串對不上時，照舊用最後一段當推測的名稱', () => {
+    const heads = '<h4>新登場角色介紹！</h4><h5>★6 甲 乙α（獸神化後）</h5><h5>★6 丙 丁α（獸神化後）</h5>';
+    // 剩下的數量不一樣
+    let [l] = X.parseHeadingLists('<p>「戊α」、「己α」跟「庚α」</p>' + heads);
+    assert.deepEqual([l.names, l.guessed, l.ordered], [['乙α', '丁α'], ['乙α', '丁α'], undefined]);
+    // 兩串都對得上：不知道用哪一串
+    [l] = X.parseHeadingLists('<p>「戊α」、「己α」</p><p>「辛α」和「壬α」</p>' + heads);
+    assert.deepEqual(l.guessed, ['乙α', '丁α']);
+    // 有對到的名稱時，那串要包含它
+    [l] = X.parseHeadingLists('<p>「乙α」只出現一次。「戊α」、「己α」</p><h4>新登場角色介紹！</h4><h5>★6 甲 乙α（獸神化後）</h5><h5>★6 MDT 丁（獸神化後）</h5>');
+    assert.deepEqual([l.names, l.guessed], [['乙α', '丁'], ['丁']]);
+});
+
 test('季節限定：沒有對到既有卡池時，用活動名稱新增限定卡池 (只在那個月)', () => {
     const { readPools, poolsForEvent } = require('../pools.js');
     const r = X.planPoolChanges(POOLS(), [item('2024-06月 祝宴！怪物彈珠新娘 4', '2024-06-02', 'honke', SEASONAL)]);
