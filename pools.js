@@ -244,10 +244,47 @@
         return resolved.replace(/\s+/g, '') + suffix;
     }
 
+    // =====================================================
+    // 共用的角色查詢：各工具用名稱找名冊 (characters.json) 裡的角色，之後可以用 id 跨工具連結同一隻角色
+    //   buildCharacterIndex(roster, { fixes })：roster 是 characters.json 的內容；fixes 是 readNameFixes 的結果 (選填)
+    //   lookupCharacter(index, name) → { id, name, element, kind } 或 null
+    //     - 先拿掉同名編號與註記 (「洛基-2」「洛基(同族)」→「洛基」)，再套名稱修正 (舊名 → 新名)，最後用名稱、別名、各形態的名稱比對
+    //       (比對規則同 poolKey：忽略空白、間隔號、全形半形、大小寫)
+    //     - element、kind 沒有時是空字串；名冊只放 ★6 的限定、期間限定、合作角色，常駐等其他角色 (elements.json) 一律回傳 null，
+    //       呼叫端照常顯示名稱、不連結。角色之後補進名冊，重新讀取時就自動連上
+    //   已知限制：同名不同版本 (本家的「紫苑」和史萊姆合作的「紫苑」) 只用名稱分不出來，名冊裡有哪一隻就回傳哪一隻；
+    //   只在某個卡池才算的寫法 (poolAliases) 不比對
+    // =====================================================
+    function buildCharacterIndex(roster, options = {}) {
+        const byKey = new Map();
+        const list = roster && Array.isArray(roster.characters) ? roster.characters : [];
+        list.forEach((c) => {
+            if (!c || !c.id || !c.name) return;
+            const entry = { id: c.id, name: c.name, element: c.element || '', kind: c.kind || '' };
+            const names = [c.name, ...(Array.isArray(c.aliases) ? c.aliases : []),
+                ...(Array.isArray(c.forms) ? c.forms.map((f) => f && f.name) : [])];
+            names.forEach((n) => {
+                const key = poolKey(n);
+                if (key && !byKey.has(key)) byKey.set(key, entry);   // 名冊不會有兩隻用同一個名稱 (roster.js 會擋)；萬一有，先出現的為準
+            });
+        });
+        return { byKey, fixes: options.fixes || null };
+    }
+
+    function lookupCharacter(index, name) {
+        if (!index || !index.byKey) return null;
+        const base = baseCharacterName(name);
+        if (!base) return null;
+        const find = (n) => index.byKey.get(poolKey(n)) || null;
+        const fixed = resolveName(index.fixes, base);
+        return find(fixed) || (fixed !== base ? find(base) : null);
+    }
+
     const api = {
         poolKey, readPools, eventMonth, matchingPools, poolsForEvent, buildLimitedLookup, isPeriodPool,
         readNameFixes, resolveName, isDistinct, applyNameFix,
-        CHARACTER_NOTE_TAGS, splitCharacterName, baseCharacterName, fixCharacterName
+        CHARACTER_NOTE_TAGS, splitCharacterName, baseCharacterName, fixCharacterName,
+        buildCharacterIndex, lookupCharacter
     };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     else root.CharacterPools = api;

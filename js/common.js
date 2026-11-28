@@ -207,7 +207,15 @@
                 [c.name, ...(c.aliases || []), ...(c.forms || []).map((f) => f && f.name)]
                     .forEach((name) => { if (poolKey(name)) map.set(poolKey(name), cls); });
             });
-            return (name) => map.get(poolKey(name)) || '';
+            // 名稱完全對不到時，用共用的角色查詢再找一次 (拿掉「-2」「(同族)」這種同名編號與註記)
+            const { buildCharacterIndex, lookupCharacter } = root.CharacterPools;
+            const index = buildCharacterIndex ? buildCharacterIndex(data) : null;
+            return (name) => {
+                const direct = map.get(poolKey(name));
+                if (direct) return direct;
+                const c = index ? lookupCharacter(index, name) : null;
+                return (c && ELEMENT_CLASS[c.element]) || '';
+            };
         } catch (e) {
             console.warn('[DATA] 讀不到 characters.json，角色名稱不上色', e);
             return () => '';

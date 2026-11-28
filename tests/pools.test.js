@@ -248,3 +248,41 @@ test('套用名稱修正：保留編號與註記、新名稱的空白拿掉、�
     assert.equal(fixCharacterName(fixes, '-2'), '-2');
     assert.equal(fixCharacterName(null, '砲姐-2'), '砲姐-2');
 });
+
+// ---- 共用的角色查詢 (buildCharacterIndex / lookupCharacter) ----
+test('角色查詢：名稱、別名、形態查得到；名冊以外的查不到；名稱修正後才查得到；同名只有一隻', () => {
+    const P = require('../pools.js');
+    const roster = { lastId: 'c0010', characters: [
+        { id: 'c0001', name: '約翰・皮耶爾・波魯那雷夫', element: '光', kind: 'collab', aliases: ['皮耶爾・波魯那雷夫'] },
+        { id: 'c0002', name: '惠比壽', forms: [{ name: '福運之神 惠比壽', form: '獸神化' }] },
+        { id: 'c0003', name: '紫苑', element: '闇', kind: 'collab' },
+        { id: '', name: '還沒編號' },
+        null
+    ] };
+    const index = P.buildCharacterIndex(roster);
+    const want = (id, name, element, kind) => ({ id, name, element, kind });
+    assert.deepEqual(P.lookupCharacter(index, '約翰・皮耶爾・波魯那雷夫'), want('c0001', '約翰・皮耶爾・波魯那雷夫', '光', 'collab'));
+    assert.deepEqual(P.lookupCharacter(index, ' 皮耶爾 波魯那雷夫 '), want('c0001', '約翰・皮耶爾・波魯那雷夫', '光', 'collab'));
+    assert.deepEqual(P.lookupCharacter(index, '福運之神 惠比壽'), want('c0002', '惠比壽', '', ''));
+    // 同名編號與註記拿掉再查
+    assert.equal(P.lookupCharacter(index, '惠比壽-2').id, 'c0002');
+    assert.equal(P.lookupCharacter(index, '惠比壽(同族)').id, 'c0002');
+    // 名冊以外 (常駐等)、沒有編號、空的：null
+    assert.equal(P.lookupCharacter(index, '一休'), null);
+    assert.equal(P.lookupCharacter(index, '還沒編號'), null);
+    assert.equal(P.lookupCharacter(index, ''), null);
+    assert.equal(P.lookupCharacter(null, '惠比壽'), null);
+    // 名稱修正：打錯的名稱修正後才查得到
+    assert.equal(P.lookupCharacter(index, '惠比受'), null);
+    const fixed = P.buildCharacterIndex(roster, { fixes: P.readNameFixes({ renames: [{ from: '惠比受', to: '惠比壽' }] }) });
+    assert.equal(P.lookupCharacter(fixed, '惠比受').id, 'c0002');
+    // 同名不同版本 (本家「紫苑」和合作「紫苑」)：名冊只有合作那隻，兩種都回傳它 (已知限制)
+    assert.equal(P.lookupCharacter(index, '紫苑').id, 'c0003');
+});
+
+test('角色查詢：實際的 characters.json 每個名稱都查得回自己', () => {
+    const P = require('../pools.js');
+    const roster = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'characters.json'), 'utf8'));
+    const index = P.buildCharacterIndex(roster);
+    roster.characters.forEach((c) => assert.equal(P.lookupCharacter(index, c.name).id, c.id, c.name));
+});
