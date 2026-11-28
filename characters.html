@@ -126,7 +126,7 @@
     <!-- 浮動列：手機在底部固定一列（不蓋內容），桌機在右下角 -->
     <nav class="ms-float" aria-label="其他工具與連結">
         <!-- 懸浮工具箱菜單 (工具連結會改用工具箱 tools.js 的清單；讀不到時使用下面的連結) -->
-        <div class="toolbox-menu-wrapper" title="點擊或滑鼠移上去展開">
+        <div class="toolbox-menu-wrapper">
             <div class="toolbox-items-list">
                 <a href="https://emily4027.github.io/monster-strike-toolbox/" class="toolbox-item toolbox-home">
                     <i class="bi bi-house-fill"></i> 工具箱首頁
@@ -144,7 +144,7 @@
                     🤝 羈絆場次工具
                 </a>
             </div>
-            <button type="button" class="toolbox-main-btn">
+            <button type="button" class="toolbox-main-btn" aria-haspopup="true" aria-expanded="false">
                 <i class="bi bi-tools"></i> 工具箱
             </button>
         </div>
@@ -154,9 +154,17 @@
         </a>
     </nav>
     <script>
-        // 純畫面：手機點「工具箱」展開／收合清單（桌機滑鼠移上去也會展開）
-        document.querySelector('.ms-float .toolbox-main-btn')?.addEventListener('click', (e) => {
-            e.currentTarget.parentElement.classList.toggle('is-open');
+        // 備援：shared.js 沒載入時自己處理工具箱開關（點按鈕開／關、點選單外或按 Esc 關閉）；
+        // shared.js 已處理（外框有 data-toolbox-bound）就跳過
+        window.addEventListener('load', () => {
+            const wrap = document.querySelector('.ms-float .toolbox-menu-wrapper');
+            const btn = wrap && wrap.querySelector('.toolbox-main-btn');
+            if (!btn || wrap.hasAttribute('data-toolbox-bound')) return;
+            wrap.setAttribute('data-toolbox-bound', 'fallback');
+            const setOpen = (open) => { wrap.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); };
+            btn.addEventListener('click', () => setOpen(!wrap.classList.contains('is-open')));
+            document.addEventListener('pointerdown', (e) => { if (!wrap.contains(e.target)) setOpen(false); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
         });
     </script>
 
