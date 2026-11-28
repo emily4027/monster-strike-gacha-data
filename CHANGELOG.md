@@ -4,6 +4,12 @@
 格式參考 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)。
 版本號依 [語意化版本](https://semver.org/lang/zh-TW/)；每次發版打 tag `v<版本>`。
 
+## [1.5.0] - 2026-11-28
+
+### 新增 (Added)
+- `pools.js` 新增共用的角色查詢 `buildCharacterIndex(roster, { fixes })`、`lookupCharacter(index, name)`：拿掉同名編號與註記、套名稱修正後，用名稱、別名、形態名稱找名冊裡的角色，回傳 `{ id, name, element, kind }`，名冊以外的回傳 `null`。給各工具之後用 id 連結同一隻角色；存檔格式都不變。
+- 名稱上色：名稱完全對不到時，用共用查詢再找一次（「洛基-2」「洛基(同族)」也會上色）。
+
 ## [1.4.0] - 2026-11-28
 
 ### 新增 (Added)
@@ -14,12 +20,6 @@
 ### 變更 (Changed)
 - 懸浮工具箱改由工具箱共用碼（toolbox 1.6.0）處理開關：按鈕開著時變色並顯示 ✕，點選單外或按 Esc 關閉；不再滑鼠移上去就展開。首頁與角色頁都改。
 - HTML 內的開關程式改成備援：共用碼沒載入時才接手，行為相同。
-
-## [1.4.0] - 2026-11-28
-
-### 新增 (Added)
-- `pools.js` 新增共用的角色查詢 `buildCharacterIndex(roster, { fixes })`、`lookupCharacter(index, name)`：拿掉同名編號與註記、套名稱修正後，用名稱、別名、形態名稱找名冊裡的角色，回傳 `{ id, name, element, kind }`，名冊以外的回傳 `null`。給各工具之後用 id 連結同一隻角色；存檔格式都不變。
-- 名稱上色：名稱完全對不到時，用共用查詢再找一次（「洛基-2」「洛基(同族)」也會上色）。
 
 ## [1.3.0] - 2026-11-28
 
